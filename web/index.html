@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#c72c31">
+  <meta name="description" content="Good Morning Club 早餐點餐">
+  <title>Good Morning Club | 早餐點餐</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="feedback.css">
+  <link rel="stylesheet" href="qr-print.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="ticker"><span>GOOD FOOD. GOOD MOOD.</span><i></i><span>每天早上 07:00 開始供應</span></div>
+  <header class="site-header">
+    <a class="wordmark" href="#top" aria-label="Good Morning Club 首頁"><span class="brand-mark" aria-hidden="true">G</span><span><strong>GOOD MORNING</strong><small>BREAKFAST CLUB</small></span></a>
+    <div class="table-control"><label for="tableSelect">用餐桌號</label><select id="tableSelect" aria-describedby="tableHint">
+      <option value="">請選擇桌號</option><option value="01">01 桌</option><option value="02">02 桌</option><option value="03">03 桌</option><option value="04">04 桌</option><option value="05">05 桌</option><option value="06">06 桌</option><option value="07">07 桌</option><option value="08">08 桌</option><option value="09">09 桌</option><option value="10">10 桌</option><option value="11">11 桌</option><option value="12">12 桌</option>
+    </select></div>
+  </header>
+  <main id="top" class="page-shell">
+    <section class="welcome-band" aria-labelledby="welcomeTitle"><div><p class="eyebrow"><span></span> YOUR MORNING, MADE BETTER</p><h1 id="welcomeTitle">早晨的好心情，<em>從這一口開始。</em></h1><p class="welcome-note" id="tableHint">選好桌號，看看今天想吃什麼。點餐完成後請至櫃檯付款。</p></div><div class="welcome-stamp"><span>FRESH</span><strong>ALL<br>MORNING</strong><small>EST. 7 AM</small></div></section>
+    <div class="section-heading"><div><p class="eyebrow">MADE FRESH, JUST FOR YOU</p><h2>早午餐菜單 <span>/</span> <small>THE MENU</small></h2></div><p id="menuCount" class="menu-count" aria-live="polite"></p></div>
+    <nav id="categoryNav" class="category-nav" aria-label="菜單分類"></nav>
+    <div class="ordering-layout"><section id="menuGrid" class="menu-grid" aria-label="餐點列表"></section>
+      <aside id="cartPanel" class="order-panel" aria-labelledby="cartHeading" aria-hidden="false">
+        <div class="order-panel-head"><div><p class="eyebrow">YOUR BREAKFAST</p><h2 id="cartHeading">我的訂單 <span id="cartCount" class="cart-count">0</span></h2></div><button id="cartClose" class="icon-button cart-close" type="button" aria-label="關閉訂單">×</button></div>
+        <div class="cart-table-line"><span>用餐桌號</span><strong id="cartTable">尚未選擇</strong></div><p id="cartHint" class="cart-hint">先選擇用餐桌號，才能確認訂單。</p><div id="cartItems" class="cart-items" aria-live="polite"></div>
+        <div class="cart-total-row"><span>小計</span><strong id="cartTotal">NT$ 0</strong></div><p class="payment-note">現場櫃檯付款・目前為示範點餐</p><button id="checkoutButton" class="checkout-button" type="button" disabled>確認訂單 <span>→</span></button>
+      </aside>
+    </div>
+  </main>
+  <div id="cartBackdrop" class="cart-backdrop" hidden></div>
+  <div id="addToast" class="add-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  <button id="mobileCartButton" class="mobile-cart-button" type="button" disabled><span>查看訂單 <b id="mobileCartCount">0</b></span><strong id="mobileCartTotal">NT$ 0</strong></button>
+  <dialog id="confirmDialog" class="order-dialog" aria-labelledby="confirmTitle"><form method="dialog" class="dialog-dismiss"><button class="icon-button" aria-label="關閉確認視窗">×</button></form><p class="eyebrow">ONE LAST LOOK</p><h2 id="confirmTitle">確認這份美好</h2><p id="confirmTable" class="dialog-table"></p><div id="confirmItems" class="dialog-items"></div><div class="dialog-total"><span>訂單小計</span><strong id="confirmTotal"></strong></div><p class="dialog-payment">付款方式：到店後至櫃檯付款</p><p class="demo-disclaimer">此為前端示範訂單，尚未傳送給店家。</p><button id="placeOrderButton" class="checkout-button" type="button">送出示範訂單 <span>→</span></button></dialog>
+  <dialog id="successDialog" class="order-dialog success-dialog" aria-labelledby="successTitle"><form method="dialog" class="dialog-dismiss"><button class="icon-button" aria-label="關閉完成訊息">×</button></form><div class="success-mark" aria-hidden="true">✓</div><p class="eyebrow">ORDER PREVIEW</p><h2 id="successTitle">點餐流程完成！</h2><p id="successTable" class="success-table"></p><div id="successSummary" class="success-summary"></div><p class="demo-disclaimer">這是示範畫面，店家並未收到訂單。請至櫃檯點餐與付款。</p><button id="doneButton" class="checkout-button" type="button">回到菜單</button></dialog>
+  <footer class="site-footer"><span>GOOD MORNING CLUB · BREAKFAST MADE BETTER</span><a href="qr-print.html">QR Code 列印設定</a></footer>
+</body>
+</html>

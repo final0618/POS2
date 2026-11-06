@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#c72c31">
+  <title>QR Code 列印設定 | Good Morning Club</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="qr-print.css">
+  <script src="vendor/qrcode.min.js" defer></script>
+  <script src="qr-print.js" defer></script>
+</head>
+<body class="qr-page">
+  <div class="ticker"><span>GOOD FOOD. GOOD MOOD.</span><i></i><span>桌面 QR CODE 設定</span></div>
+  <header class="site-header"><a class="wordmark" href="index.html"><span class="brand-mark" aria-hidden="true">G</span><span><strong>GOOD MORNING</strong><small>BREAKFAST CLUB</small></span></a><a class="back-link" href="index.html">返回點餐頁 <span aria-hidden="true">→</span></a></header>
+  <main class="qr-shell">
+    <section class="qr-intro"><p class="eyebrow">TABLETOP ORDERING</p><h1>一掃，開啟好早晨。</h1><p>設定公開的點餐網址，產生一張全店共用 QR Code。客人掃描後可自行選擇桌號。</p></section>
+    <div class="qr-workspace">
+      <section class="qr-settings" aria-labelledby="settingsTitle">
+        <p class="eyebrow">SETUP</p><h2 id="settingsTitle">設定點餐網址</h2>
+        <label for="siteUrl">公開網站網址</label>
+        <div class="url-field"><input id="siteUrl" type="url" inputmode="url" autocomplete="url" placeholder="https://your-shop.tw/web/" aria-describedby="urlHelp urlStatus"><button id="generateButton" type="button">產生 QR</button></div>
+        <p id="urlHelp" class="field-help">請填入手機可連線的公開網址，例如 https://your-shop.tw/web/ 。</p>
+        <p id="urlStatus" class="url-status" role="status" aria-live="polite">尚未設定網址，無法產生可用 QR Code。</p>
+        <div class="qr-actions"><button id="downloadButton" type="button" disabled>下載 PNG</button><button id="printButton" type="button" disabled>列印桌牌</button></div>
+        <p class="privacy-note">網址只會在此瀏覽器產生 QR 圖，不會上傳或儲存。</p>
+      </section>
+      <section class="qr-preview-wrap" aria-label="QR Code 預覽">
+        <article class="qr-poster" id="qrPoster">
+          <div class="poster-stripes" aria-hidden="true"></div><p class="poster-brand">GOOD MORNING CLUB</p><p class="poster-invite">早晨想吃什麼？</p><h2>掃碼開始點餐</h2>
+          <div id="qrOutput" class="qr-output"><span>設定網址後<br>QR Code 會顯示在這裡</span></div>
+          <p class="poster-footer">掃描後選擇桌號・現場櫃檯付款</p><div class="poster-stripes poster-stripes-bottom" aria-hidden="true"></div>
+        </article>
+        <p class="preview-caption">共用 QR Code 預覽 · 列印前請用手機實際掃描測試</p>
+      </section>
+    </div>
+    <aside class="qr-warning"><strong>尚未有正式網站網址？</strong><span>先完成網站託管，再把正式網址貼到上方。localhost 或本機檔案網址無法讓店內客人掃描使用。</span></aside>
+  </main>
+</body>
+</html>

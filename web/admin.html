@@ -14,6 +14,8 @@
   <link rel="stylesheet" href="admin.css">
   <link rel="stylesheet" href="admin-dashboard.css">
   <link rel="stylesheet" href="competitors.css">
+  <script src="sales-chart.js" defer></script>
+  <script src="weekly-sales-chart.js" defer></script>
   <script src="table-heatmap.js" defer></script>
   <script src="admin.js" defer></script>
 </head>
@@ -58,11 +60,17 @@
         </div>
         <section class="sales-section admin-sales-section" aria-labelledby="adminSalesHeading">
           <div class="dashboard-section-heading"><div><p class="eyebrow">REVENUE</p><h3 id="adminSalesHeading">營業額</h3></div><p class="dashboard-note">非取消訂單總額，包含待付款</p></div>
+          <p class="dashboard-explainer">各期間為累計值，可能互相重疊；條長按三項中的最高金額縮放，不可相加。</p>
           <div class="sales-grid" aria-live="polite">
-            <article class="sales-metric"><p>本日</p><strong id="adminTodaySales">NT$ 0</strong><span>台北時間 00:00 至今</span></article>
-            <article class="sales-metric"><p>本週</p><strong id="adminWeekSales">NT$ 0</strong><span>週一至週日</span></article>
-            <article class="sales-metric"><p>本月</p><strong id="adminMonthSales">NT$ 0</strong><span>本月累計</span></article>
+            <article class="sales-metric" data-period="today"><p>本日</p><strong id="adminTodaySales">載入中…</strong><span class="sales-track" aria-hidden="true"><span class="sales-bar"></span></span><span>台北時間 00:00 至今</span></article>
+            <article class="sales-metric" data-period="week"><p>本週</p><strong id="adminWeekSales">載入中…</strong><span class="sales-track" aria-hidden="true"><span class="sales-bar"></span></span><span>週一至週日</span></article>
+            <article class="sales-metric" data-period="month"><p>本月</p><strong id="adminMonthSales">載入中…</strong><span class="sales-track" aria-hidden="true"><span class="sales-bar"></span></span><span>本月累計</span></article>
           </div>
+        </section>
+        <section class="daily-sales-section" aria-labelledby="adminDailySalesHeading">
+          <div class="dashboard-section-heading"><div><p class="eyebrow">DAILY REVENUE</p><h3 id="adminDailySalesHeading">本週每日營業額</h3></div><span class="dashboard-note">週日為第一天・台北時間</span></div>
+          <p class="dashboard-explainer">非取消訂單，包含待付款；本週營業額摘要則依週一至週日計算。</p>
+          <ol id="adminDailySalesChart" class="daily-sales-chart" aria-label="本週每日營業額" aria-live="polite"><li class="dashboard-empty">正在載入…</li></ol>
         </section>
         <div class="dashboard-columns admin-dashboard-columns">
           <section class="dashboard-panel" aria-labelledby="adminProductsHeading"><div class="dashboard-section-heading"><div><p class="eyebrow">BEST SELLERS</p><h3 id="adminProductsHeading">本月熱銷商品</h3></div><span class="dashboard-note">依銷售數量排序</span></div><ol id="adminTopProducts" class="rank-list"><li class="dashboard-empty">正在載入…</li></ol></section>

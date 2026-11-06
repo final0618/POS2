@@ -11,6 +11,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="dashboard.css">
+  <script src="sales-chart.js" defer></script>
+  <script src="weekly-sales-chart.js" defer></script>
   <script src="table-heatmap.js" defer></script>
   <script src="dashboard.js" defer></script>
 </head>
@@ -38,11 +40,18 @@
         <div><p class="eyebrow">REVENUE</p><h2 id="salesHeading">營業額</h2></div>
         <p id="salesDefinition" class="dashboard-note">統計非取消訂單，包含待付款</p>
       </div>
+      <p class="dashboard-explainer">各期間為累計值，可能互相重疊；條長按三項中的最高金額縮放，不可相加。</p>
       <div class="sales-grid" aria-live="polite">
-        <article class="sales-metric"><p>本日</p><strong id="todaySales">NT$ 0</strong><span>台北時間 00:00 至今</span></article>
-        <article class="sales-metric"><p>本週</p><strong id="weekSales">NT$ 0</strong><span>週一至週日</span></article>
-        <article class="sales-metric"><p>本月</p><strong id="monthSales">NT$ 0</strong><span>本月累計</span></article>
+        <article class="sales-metric" data-period="today"><p>本日</p><strong id="todaySales">載入中…</strong><span class="sales-track" aria-hidden="true"><span class="sales-bar"></span></span><span>台北時間 00:00 至今</span></article>
+        <article class="sales-metric" data-period="week"><p>本週</p><strong id="weekSales">載入中…</strong><span class="sales-track" aria-hidden="true"><span class="sales-bar"></span></span><span>週一至週日</span></article>
+        <article class="sales-metric" data-period="month"><p>本月</p><strong id="monthSales">載入中…</strong><span class="sales-track" aria-hidden="true"><span class="sales-bar"></span></span><span>本月累計</span></article>
       </div>
+    </section>
+
+    <section class="daily-sales-section" aria-labelledby="dailySalesHeading">
+      <div class="dashboard-section-heading"><div><p class="eyebrow">DAILY REVENUE</p><h2 id="dailySalesHeading">本週每日營業額</h2></div><span class="dashboard-note">週日為第一天・台北時間</span></div>
+      <p class="dashboard-explainer">非取消訂單，包含待付款；本週營業額摘要則依週一至週日計算。</p>
+      <ol id="dailySalesChart" class="daily-sales-chart" aria-label="本週每日營業額" aria-live="polite"><li class="dashboard-empty">正在載入…</li></ol>
     </section>
 
     <div class="dashboard-columns">

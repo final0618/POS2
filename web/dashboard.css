@@ -21,6 +21,18 @@
 .sales-metric strong{display:block;color:var(--ink);font-size:29px;font-weight:800;font-variant-numeric:tabular-nums}
 .sales-metric:first-child strong{color:var(--red)}
 .sales-metric span{display:block;margin-top:8px;color:var(--muted);font-size:10px}
+.sales-metric .sales-track{height:12px;margin-top:18px;overflow:hidden;background:#e8e1d8}
+.sales-metric .sales-bar{height:100%;margin:0;background:var(--teal);transition:width .25s ease}
+.sales-metric:first-child .sales-bar{background:var(--red)}
+.sales-metric:last-child .sales-bar{background:#a77a17}
+.daily-sales-section{padding:27px 0 0}
+.daily-sales-chart{list-style:none;padding:0;margin:16px 0 0}
+.daily-sales-item{display:grid;grid-template-columns:110px minmax(0,1fr) 120px;align-items:center;gap:12px;min-height:44px;border-bottom:1px solid var(--line);font-size:12px}
+.daily-sales-item time{font-weight:700;font-variant-numeric:tabular-nums}
+.daily-sales-track{display:block;height:12px;background:#ece7df}
+.daily-sales-bar{display:block;height:100%;background:var(--teal)}
+.daily-sales-amount{text-align:right;font-variant-numeric:tabular-nums}
+@media(max-width:520px){.daily-sales-item{grid-template-columns:82px minmax(0,1fr) 85px;gap:8px;font-size:10px}}
 .dashboard-columns{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:44px;padding-top:34px}
 .dashboard-panel{min-width:0}
 .dashboard-panel .dashboard-section-heading{padding-bottom:15px;border-bottom:2px solid var(--ink)}

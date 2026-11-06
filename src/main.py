@@ -159,6 +159,7 @@ def get_dashboard() -> dict[str, object]:
     period_end = now.replace(microsecond=0) + timedelta(seconds=1)
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     week_start = today_start - timedelta(days=today_start.weekday())
+    report_week_start = today_start - timedelta(days=(today_start.weekday() + 1) % 7)
     month_start = today_start.replace(day=1)
     end_timestamp = _database_timestamp(period_end)
     month_timestamp = _database_timestamp(month_start)
@@ -224,8 +225,20 @@ def get_dashboard() -> dict[str, object]:
             """,
             (month_timestamp, end_timestamp),
         ).fetchall()
+        daily_sales = connection.execute(
+            """
+            SELECT strftime('%Y-%m-%d', created_at, '+8 hours') AS date,
+                   SUM(total_amount) AS amount
+            FROM orders
+            WHERE status != 'cancelled'
+                AND created_at >= ? AND created_at < ?
+            GROUP BY date
+            """,
+            (_database_timestamp(report_week_start), end_timestamp),
+        ).fetchall()
 
     counts_by_table = {row["table_number"]: row["order_count"] for row in table_counts}
+    sales_by_date = {row["date"]: row["amount"] for row in daily_sales}
     return {
         "generated_at": now.isoformat(timespec="seconds"),
         "timezone": "Asia/Taipei",
@@ -243,6 +256,17 @@ def get_dashboard() -> dict[str, object]:
         "table_counts": [
             {"table_number": f"{number:02d}", "order_count": counts_by_table.get(f"{number:02d}", 0)}
             for number in range(1, 13)
+        ],
+        "daily_sales_week": [
+            {
+                "date": (report_week_start + timedelta(days=day)).date().isoformat(),
+                "amount": (
+                    sales_by_date.get((report_week_start + timedelta(days=day)).date().isoformat(), 0)
+                    if (report_week_start + timedelta(days=day)).date() <= now.date()
+                    else None
+                ),
+            }
+            for day in range(7)
         ],
     }
 

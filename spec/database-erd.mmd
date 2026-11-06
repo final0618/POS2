@@ -1,0 +1,39 @@
+erDiagram
+    MENU_ITEMS ||--o{ ORDER_ITEMS : contains
+    ORDERS ||--|{ ORDER_ITEMS : includes
+
+    MENU_ITEMS {
+        TEXT id PK
+        TEXT name
+        TEXT category
+        TEXT description
+        INTEGER price
+        TEXT badge
+        TEXT image_url
+        TEXT alt_text
+        INTEGER is_available
+    }
+
+    ORDERS {
+        TEXT id PK
+        TEXT table_number
+        TEXT status
+        TEXT payment_status
+        INTEGER total_amount
+        TEXT created_at
+    }
+
+    ORDER_ITEMS {
+        TEXT order_id PK, FK
+        TEXT menu_item_id PK, FK
+        TEXT item_name
+        INTEGER unit_price
+        INTEGER quantity
+        INTEGER subtotal
+    }
+
+    INPUTS {
+        INTEGER id PK
+        TEXT input_text
+        TEXT created_at
+    }

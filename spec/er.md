@@ -4,7 +4,7 @@
 
 - 檔案：`data/pos.db`
 - 引擎：SQLite
-- 實際資料表：`menu_items`、`orders`、`order_items`、`inputs`、`competitors`
+- 實際資料表：`menu_items`、`orders`、`order_items`、`inputs`、`competitors`、`competitor_prices`
 - 目前 ER 圖：![Good Morning Club SQLite ER diagram](er.jpg)
 - 金額以新台幣整數儲存；資料庫時間為 UTC ISO 8601 字串。Dashboard 統計時轉換為 `Asia/Taipei`。
 
@@ -14,6 +14,8 @@
 erDiagram
     MENU_ITEMS ||--o{ ORDER_ITEMS : contains
     ORDERS ||--|{ ORDER_ITEMS : includes
+    MENU_ITEMS ||--o{ COMPETITOR_PRICES : compares
+    COMPETITORS ||--o{ COMPETITOR_PRICES : supplies
 
     MENU_ITEMS {
         TEXT id PK
@@ -68,13 +70,23 @@ erDiagram
         TEXT notes
         INTEGER is_active
     }
+
+    COMPETITOR_PRICES {
+        TEXT competitor_id PK, FK
+        TEXT menu_item_id PK, FK
+        INTEGER price
+        TEXT product_name
+        TEXT price_source_url
+        TEXT price_checked_at
+        TEXT price_notes
+    }
 ```
 
 - 一個 `orders` 訂單至少包含一筆明細；每筆 `order_items` 必須屬於一筆訂單及一個菜單商品。
 - 一個 `menu_items` 商品可被零筆或多筆訂單明細引用。
 - `order_items` 的複合主鍵為 `(order_id, menu_item_id)`。
 - `inputs` 是獨立資料表；目前 `/input` API 尚未實作。
-- `competitors` 是獨立的店家市場資料，使用來源網址與查核日期追溯；未與訂單或菜單建立外鍵。
+- `competitor_prices` 以複合主鍵 `(competitor_id, menu_item_id)` 連結店家與菜單，並記錄價格來源；缺少資料列代表查無價格。
 - 管理者帳號不存於資料庫，使用環境變數及簽章 session cookie。
 
 ## 初始競品資料
@@ -92,6 +104,18 @@ erDiagram
 未查證到的電話、官方網站及價位保持空值，不以推測值補齊。
 
 ## 欄位字典
+
+### `competitor_prices` 競品價格
+
+| 欄位 | SQLite 型態 | 限制與說明 |
+| --- | --- | --- |
+| `competitor_id` | TEXT | 複合主鍵、外鍵 → `competitors.id`，刪除時連動刪除。 |
+| `menu_item_id` | TEXT | 複合主鍵、外鍵 → `menu_items.id`，刪除時連動刪除。 |
+| `price` | INTEGER | NOT NULL，非負整數，新台幣。 |
+| `product_name` | TEXT | 可為 NULL，競品原始品名。 |
+| `price_source_url` | TEXT | 可為 NULL，價格來源網址。 |
+| `price_checked_at` | TEXT | 可為 NULL，價格查核日期。 |
+| `price_notes` | TEXT | 可為 NULL，品項差異或收費備註。 |
 
 ### `menu_items` 餐點
 

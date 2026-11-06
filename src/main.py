@@ -214,7 +214,18 @@ def get_dashboard() -> dict[str, object]:
             """,
             (month_timestamp, end_timestamp),
         ).fetchall()
+        table_counts = connection.execute(
+            """
+            SELECT table_number, COUNT(*) AS order_count
+            FROM orders
+            WHERE status != 'cancelled'
+                AND created_at >= ? AND created_at < ?
+            GROUP BY table_number
+            """,
+            (month_timestamp, end_timestamp),
+        ).fetchall()
 
+    counts_by_table = {row["table_number"]: row["order_count"] for row in table_counts}
     return {
         "generated_at": now.isoformat(timespec="seconds"),
         "timezone": "Asia/Taipei",
@@ -228,6 +239,10 @@ def get_dashboard() -> dict[str, object]:
         "popular_times": [
             {"time": f"{row['hour']}:{row['minute']}", "order_count": row["order_count"]}
             for row in popular_times
+        ],
+        "table_counts": [
+            {"table_number": f"{number:02d}", "order_count": counts_by_table.get(f"{number:02d}", 0)}
+            for number in range(1, 13)
         ],
     }
 

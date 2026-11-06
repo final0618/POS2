@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 
 $width = 1960
-$height = 2200
+$height = 2700
 $bitmap = [System.Drawing.Bitmap]::new($width, $height)
 $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
 $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
@@ -36,7 +36,7 @@ $linePen = [System.Drawing.Pen]::new($line, 1)
 $relationPen = [System.Drawing.Pen]::new($teal, 4)
 
 $graphics.DrawString('Good Morning Club | Database ER Diagram', $titleFont, $inkBrush, 58, 38)
-$graphics.DrawString('SQLite: data/pos.db    |    5 entities    |    Money stored as INTEGER NTD', $subtitleFont, $mutedBrush, 62, 91)
+$graphics.DrawString('SQLite: data/pos.db    |    6 entities    |    Money stored as INTEGER NTD', $subtitleFont, $mutedBrush, 62, 91)
 
 $menuRows = @(
     @{ Key='PK'; Field='id'; Type='TEXT'; Note='Product identifier' },
@@ -87,6 +87,15 @@ $competitorRows = @(
     @{ Key=''; Field='notes'; Type='TEXT'; Note='Verification notes' },
     @{ Key=''; Field='is_active'; Type='INTEGER'; Note='Active flag: 0 or 1' }
 )
+$priceRows = @(
+    @{ Key='PK/FK'; Field='competitor_id'; Type='TEXT'; Note='FK -> competitors.id; cascade delete' },
+    @{ Key='PK/FK'; Field='menu_item_id'; Type='TEXT'; Note='FK -> menu_items.id; cascade delete' },
+    @{ Key=''; Field='price'; Type='INTEGER'; Note='Price in NTD; >= 0' },
+    @{ Key=''; Field='product_name'; Type='TEXT'; Note='Competitor product name; nullable' },
+    @{ Key=''; Field='price_source_url'; Type='TEXT'; Note='Price source URL; nullable' },
+    @{ Key=''; Field='price_checked_at'; Type='TEXT'; Note='Price verification date; nullable' },
+    @{ Key=''; Field='price_notes'; Type='TEXT'; Note='Comparison details; nullable' }
+)
 
 function Draw-Entity($X, $Y, $Width, $Name, $Rows, $Accent, $RowHeight) {
     $cardHeight = 78 + ($Rows.Count * $RowHeight) + 10
@@ -134,16 +143,23 @@ $graphics.DrawLine($relationPen, 1450, 535, 1320, 790)
 $graphics.DrawString('1', $fieldFont, $tealBrush, 1450, 515)
 $graphics.DrawString('1..N', $fieldFont, $tealBrush, 1300, 760)
 $graphics.DrawString('order contains line items', $noteFont, $tealBrush, 1360, 648)
+$graphics.DrawLine($relationPen, 28, 520, 28, 2210)
+$graphics.DrawLine($relationPen, 28, 520, 55, 520)
+$graphics.DrawLine($relationPen, 28, 2210, 55, 2210)
+$graphics.DrawLine($relationPen, 1500, 2043, 1500, 2150)
+$graphics.DrawString('1', $fieldFont, $tealBrush, 1510, 2050)
+$graphics.DrawString('0..N', $fieldFont, $tealBrush, 1510, 2115)
 
 Draw-Entity 55 170 850 'menu_items | Menu' $menuRows $red 42
 Draw-Entity 1120 170 790 'orders | Order header' $orderRows $teal 42
 Draw-Entity 530 790 890 'order_items | Order lines' $itemRows $yellow 42
 Draw-Entity 1490 800 420 'inputs | Input log' $inputRows $red 47
 Draw-Entity 55 1400 1850 'competitors | Local market' $competitorRows $teal 37
+Draw-Entity 55 2150 1850 'competitor_prices | Product price comparisons' $priceRows $red 37
 
-$graphics.DrawLine($linePen, 58, 2080, 1900, 2080)
-$graphics.DrawString('PK = primary key    |    FK = foreign key    |    order_items uses composite PK (order_id, menu_item_id)', $footerFont, $inkBrush, 62, 2095)
-$graphics.DrawString('Relationships: menu_items 1 : 0..N order_items    |    orders 1 : 1..N order_items    |    inputs and competitors are independent', $footerFont, $mutedBrush, 62, 2125)
+$graphics.DrawLine($linePen, 58, 2550, 1900, 2550)
+$graphics.DrawString('PK = primary key    |    FK = foreign key    |    order_items and competitor_prices use composite primary keys', $footerFont, $inkBrush, 62, 2565)
+$graphics.DrawString('Relationships: menu_items and competitors each have 0..N competitor_prices    |    inputs is independent', $footerFont, $mutedBrush, 62, 2595)
 
 $output = Join-Path $PSScriptRoot 'er.jpg'
 $bitmap.Save($output, [System.Drawing.Imaging.ImageFormat]::Jpeg)

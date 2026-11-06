@@ -21,8 +21,9 @@
 - 管理頁的「營運概覽」頁籤與獨立 `web/dashboard.html` 共用 `GET /api/dashboard`；無需額外統計 API 或資料表。
 - 菜單管理直接使用 `menu_items` 現有欄位新增、編輯與上下架；停售只更新 `is_available`，不刪除餐點，以保留訂單明細外鍵及歷史價格/名稱快照。
 - 訂單處理直接使用 `orders.status`、`orders.payment_status` 與 `order_items`；可查詢訂單及更新訂單/付款狀態。
-- 菜單、訂單及 dashboard 使用既有資料表；競業資料使用新增的獨立 `competitors` 表，不修改既有四張表。管理者帳密由 `ADMIN_USERNAME`、`ADMIN_PASSWORD`、`ADMIN_SESSION_SECRET` 環境變數提供，不存入資料庫。
+- 競業資料使用 `competitors` 與 `competitor_prices` 表，不修改既有菜單及訂單表。管理者帳密由 `ADMIN_USERNAME`、`ADMIN_PASSWORD`、`ADMIN_SESSION_SECRET` 環境變數提供，不存入資料庫。
 - 競品初始候選資料來源為 Google 地圖「早餐店 上石路 台中市西屯區」搜尋結果，查核日為 `2026-11-06`；來源 URL、評分/評論數與當時顯示的營業資訊一併保存。電話與價位未查證，保持 NULL。
+- 已查證的競品商品價格另存於 `competitor_prices`，每筆保留商品名稱、來源 URL、查核日期與規格差異備註。現有價格樣本是同類品項參考，不代表份量、配料或內用/外送價格完全一致；未查到的商品不建立價格列。
 - 登入成功後以 8 小時簽章 session cookie 驗證管理 API；Cookie 設為 HttpOnly、SameSite=Strict，HTTPS 時設 Secure。未設定管理環境變數時，管理 API 回傳 HTTP 503。
 - 部署至公開網站時必須使用 HTTPS，並以密碼管理器或部署平台密鑰設定強密碼及 session secret。
 
@@ -38,6 +39,8 @@
 erDiagram
   MENU_ITEMS ||--o{ ORDER_ITEMS : "餐點明細"
   ORDERS ||--|{ ORDER_ITEMS : "包含"
+  MENU_ITEMS ||--o{ COMPETITOR_PRICES : "價格比較"
+  COMPETITORS ||--o{ COMPETITOR_PRICES : "提供"
 
   MENU_ITEMS {
     TEXT id PK "餐點識別碼"
@@ -87,6 +90,15 @@ erDiagram
     TEXT source_checked_at "查核日期"
     TEXT notes "備註"
     INTEGER is_active "是否啟用"
+  }
+  COMPETITOR_PRICES {
+    TEXT competitor_id PK, FK
+    TEXT menu_item_id PK, FK
+    INTEGER price
+    TEXT product_name
+    TEXT price_source_url
+    TEXT price_checked_at
+    TEXT price_notes
   }
 ```
 
@@ -157,6 +169,21 @@ erDiagram
 | `source_checked_at` | TEXT | NOT NULL，`YYYY-MM-DD` | 資料查核日期。 |
 | `notes` | TEXT | NOT NULL，預設空字串 | 查核及資料限制備註。 |
 | `is_active` | INTEGER | NOT NULL，DEFAULT `1`，限 `0` 或 `1` | `1` 顯示於管理列表；`0` 停用但保留資料。 |
+
+#### `competitor_prices` 競品商品價格
+
+| 欄位 | SQLite 型態 | 限制／預設值 | 說明 |
+| --- | --- | --- | --- |
+| `competitor_id` | TEXT | PK、FK → `competitors.id`，ON DELETE CASCADE | 競品店家。 |
+| `menu_item_id` | TEXT | PK、FK → `menu_items.id`，ON DELETE CASCADE | 對應的本店商品。 |
+| `price` | INTEGER | NOT NULL，`>= 0` | 競品同類商品價格（新台幣）。 |
+| `product_name` | TEXT | 可為 NULL | 競品實際品名。 |
+| `price_source_url` | TEXT | 可為 NULL | 價格來源網址，與店家資料來源分開。 |
+| `price_checked_at` | TEXT | 可為 NULL | 價格查核日期。 |
+| `price_notes` | TEXT | 可為 NULL | 差異與收費方式等注意事項。 |
+
+沒有對應資料列代表尚未查到價格，管理後台顯示「查無資料」；API 的 `prices` 只回傳有價格的商品。
+競品表單手動改價時清除舊價格來源資訊，避免誤認為新價格已查證；價格不變時保留來源。
 
 ### 外鍵與連線規則
 
@@ -356,7 +383,7 @@ erDiagram
 
 ### 菜單管理
 
-- `GET /api/admin/menu`：列出所有餐點，包含停售餐點。
+- `GET /api/admin/menu`：列出所有餐點，包含停售餐點、啟用競品的 `price_comparisons` 明細與 `recommended_price`。建議價是同類樣本均價四捨五入至整元（0.5 進位）；無樣本為 `null`，前端顯示「查無資料」。明細含競品名稱、價格、品名、價格來源、查核日期及規格差異備註。建議價不是即時報價，也不會更動商品售價。
 - `POST /api/admin/menu`：新增餐點，成功回傳 HTTP 201。輸入包含 `id`、`name`、`category`、`description`、`price`、`badge`、`image_url`、`alt_text`、`is_available`。
 - `PUT /api/admin/menu/{id}`：更新既有餐點資料及供應狀態；`id` 不可變更。
 - `price` 必須為 0 至 1,000,000 的整數；餐點 ID 只能使用小寫英數字及連字號。重複 ID 回傳 HTTP 409；找不到餐點回傳 HTTP 404。

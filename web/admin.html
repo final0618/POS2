@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="admin.css">
   <link rel="stylesheet" href="admin-dashboard.css">
   <link rel="stylesheet" href="competitors.css">
+  <script src="table-heatmap.js" defer></script>
   <script src="admin.js" defer></script>
 </head>
 <body class="admin-page">
@@ -67,6 +68,12 @@
           <section class="dashboard-panel" aria-labelledby="adminProductsHeading"><div class="dashboard-section-heading"><div><p class="eyebrow">BEST SELLERS</p><h3 id="adminProductsHeading">本月熱銷商品</h3></div><span class="dashboard-note">依銷售數量排序</span></div><ol id="adminTopProducts" class="rank-list"><li class="dashboard-empty">正在載入…</li></ol></section>
           <section class="dashboard-panel" aria-labelledby="adminTimesHeading"><div class="dashboard-section-heading"><div><p class="eyebrow">ORDER RHYTHM</p><h3 id="adminTimesHeading">熱門下單時段</h3></div><span class="dashboard-note">本月・每 30 分鐘</span></div><p class="dashboard-explainer">依訂單建立時間分箱，不代表預約到店時間。</p><ol id="adminPopularTimes" class="time-list"><li class="dashboard-empty">正在載入…</li></ol></section>
         </div>
+        <section class="table-heatmap-section" aria-labelledby="adminTableHeatmapHeading">
+          <div class="dashboard-section-heading"><div><p class="eyebrow">TABLE POPULARITY</p><h3 id="adminTableHeatmapHeading">本月桌次熱區</h3></div><span class="dashboard-note">非取消訂單・依下單數計算</span></div>
+          <p class="dashboard-explainer">顏色越深表示訂單越多；桌號為示意排列，並非店內實際座位配置。</p>
+          <p id="adminTableHeatmapSummary" class="heatmap-summary" role="status">正在載入…</p>
+          <ul id="adminTableHeatmap" class="table-heatmap" aria-label="各桌本月訂單數"></ul>
+        </section>
       </section>
 
       <section id="ordersPanel" class="admin-panel" role="tabpanel" aria-labelledby="ordersTab">
@@ -94,9 +101,13 @@
             <label class="editor-wide">圖片替代文字<input id="menuAlt" name="alt_text" required maxlength="240"></label>
             <label class="editor-wide">餐點描述<textarea id="menuDescription" name="description" required maxlength="500" rows="2"></textarea></label>
           </div>
+          <section id="menuPriceAdvice" class="menu-price-advice" aria-live="polite">
+            <h4>競品價格與建議售價</h4>
+            <p>選擇既有餐點後顯示價格比較。</p>
+          </section>
           <div class="editor-actions"><label class="availability-toggle"><input id="menuAvailable" name="is_available" type="checkbox" checked> 供應中</label><button class="admin-primary-button" type="submit"><span id="saveMenuLabel">新增餐點</span></button></div>
         </form>
-        <div class="menu-table-wrap"><table class="menu-table"><thead><tr><th>餐點</th><th>分類</th><th>價格</th><th>供應狀態</th><th><span class="visually-hidden">操作</span></th></tr></thead><tbody id="menuRows"><tr><td colspan="5" class="admin-empty">正在載入菜單…</td></tr></tbody></table></div>
+        <div class="menu-table-wrap"><table class="menu-table"><thead><tr><th>餐點</th><th>分類</th><th>價格</th><th>參考建議價</th><th>供應狀態</th><th><span class="visually-hidden">操作</span></th></tr></thead><tbody id="menuRows"><tr><td colspan="6" class="admin-empty">正在載入菜單…</td></tr></tbody></table></div>
       </section>
 
       <section id="competitorsPanel" class="admin-panel" role="tabpanel" aria-labelledby="competitorsTab" hidden>
@@ -123,6 +134,7 @@
             <label>查核日期<input id="competitorCheckedAt" type="date" required></label>
             <label class="competitor-wide">備註<textarea id="competitorNotes" rows="2" maxlength="1000"></textarea></label>
           </div>
+          <fieldset class="competitor-prices"><legend>競品各商品價格（留空顯示「查無資料」）</legend><div id="competitorPriceFields" class="competitor-price-grid"></div></fieldset>
           <div class="editor-actions"><label class="availability-toggle"><input id="competitorActive" type="checkbox" checked> 啟用此競品資料</label><button class="admin-primary-button" type="submit"><span id="saveCompetitorLabel">新增資料</span></button></div>
         </form>
         <div class="competitor-list" id="competitorList" aria-live="polite"><p class="admin-empty">正在載入競業資料…</p></div>

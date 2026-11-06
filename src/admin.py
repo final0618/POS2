@@ -61,6 +61,33 @@ class CompetitorPayload(BaseModel):
     source_checked_at: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
     notes: str = Field(default="", max_length=1000)
     is_active: bool = True
+    prices: dict[str, int | None] = Field(default_factory=dict)
+
+
+def _save_competitor_prices(
+    connection: sqlite3.Connection, competitor_id: str, prices: dict[str, int | None]
+) -> None:
+    known = {row[0] for row in connection.execute("SELECT id FROM menu_items")}
+    if any(menu_id not in known or (price is not None and price < 0) for menu_id, price in prices.items()):
+        raise HTTPException(status_code=422, detail="競品價格對應的餐點不存在或價格不正確。")
+    existing = {row[0] for row in connection.execute(
+        "SELECT menu_item_id FROM competitor_prices WHERE competitor_id = ?", (competitor_id,)
+    )}
+    for menu_id in existing - {key for key, price in prices.items() if price is not None}:
+        connection.execute(
+            "DELETE FROM competitor_prices WHERE competitor_id = ? AND menu_item_id = ?",
+            (competitor_id, menu_id),
+        )
+    connection.executemany(
+        """INSERT INTO competitor_prices (competitor_id, menu_item_id, price) VALUES (?, ?, ?)
+           ON CONFLICT(competitor_id, menu_item_id) DO UPDATE SET
+               product_name = CASE WHEN price = excluded.price THEN product_name ELSE NULL END,
+               price_source_url = CASE WHEN price = excluded.price THEN price_source_url ELSE NULL END,
+               price_checked_at = CASE WHEN price = excluded.price THEN price_checked_at ELSE NULL END,
+               price_notes = CASE WHEN price = excluded.price THEN price_notes ELSE NULL END,
+               price = excluded.price""",
+        [(competitor_id, menu_id, price) for menu_id, price in prices.items() if price is not None],
+    )
 
 
 def _sign_session(username: str, expires_at: int) -> str:
@@ -143,7 +170,24 @@ def get_admin_menu(_: str = Depends(require_admin)) -> dict[str, list[dict[str, 
             ORDER BY category, rowid
             """
         ).fetchall()
-    return {"items": [dict(row) for row in rows]}
+        price_rows = connection.execute(
+            """SELECT p.menu_item_id, p.price, p.product_name, p.price_source_url,
+                      p.price_checked_at, p.price_notes, c.name AS competitor_name
+               FROM competitor_prices p JOIN competitors c ON c.id = p.competitor_id
+               WHERE c.is_active = 1 ORDER BY c.name"""
+        ).fetchall()
+    comparisons: dict[str, list[dict[str, object]]] = {}
+    for price in price_rows:
+        comparison = dict(price)
+        menu_id = str(comparison.pop("menu_item_id"))
+        comparisons.setdefault(menu_id, []).append(comparison)
+    items = []
+    for row in rows:
+        samples = comparisons.get(row["id"], [])
+        total = sum(int(sample["price"]) for sample in samples)
+        recommended = (2 * total + len(samples)) // (2 * len(samples)) if samples else None
+        items.append({**dict(row), "price_comparisons": samples, "recommended_price": recommended})
+    return {"items": items}
 
 
 @router.post("/menu", status_code=201)
@@ -261,6 +305,13 @@ def get_competitors(
 ) -> dict[str, list[dict[str, object]]]:
     with closing(sqlite3.connect(DB_PATH)) as connection:
         connection.row_factory = sqlite3.Row
+        menu = [
+            dict(row)
+            for row in connection.execute("SELECT id, name FROM menu_items ORDER BY rowid")
+        ]
+        price_rows = connection.execute(
+            "SELECT competitor_id, menu_item_id, price FROM competitor_prices"
+        ).fetchall()
         if query and query.strip():
             search = f"%{query.strip()}%"
             rows = connection.execute(
@@ -275,7 +326,13 @@ def get_competitors(
             rows = connection.execute(
                 "SELECT * FROM competitors ORDER BY is_active DESC, category, name"
             ).fetchall()
-    return {"competitors": [dict(row) for row in rows]}
+    prices: dict[str, dict[str, int]] = {}
+    for row in price_rows:
+        prices.setdefault(row["competitor_id"], {})[row["menu_item_id"]] = row["price"]
+    return {
+        "menu_items": menu,
+        "competitors": [{**dict(row), "prices": prices.get(row["id"], {})} for row in rows],
+    }
 
 
 @router.post("/competitors", status_code=201)
@@ -302,6 +359,7 @@ def create_competitor(
                         payload.source_checked_at, payload.notes.strip(), int(payload.is_active),
                     ),
                 )
+                _save_competitor_prices(connection, payload.id, payload.prices)
     except sqlite3.IntegrityError:
         raise HTTPException(status_code=409, detail="競品 ID 已存在。") from None
     return {"id": payload.id}
@@ -336,4 +394,5 @@ def update_competitor(
             )
             if cursor.rowcount == 0:
                 raise HTTPException(status_code=404, detail="找不到此競品資料。")
+            _save_competitor_prices(connection, competitor_id, payload.prices)
     return {"id": competitor_id}

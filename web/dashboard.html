@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="dashboard.css">
+  <script src="table-heatmap.js" defer></script>
   <script src="dashboard.js" defer></script>
 </head>
 <body class="dashboard-page">
@@ -61,6 +62,12 @@
         <ol id="popularTimes" class="time-list" aria-live="polite"><li class="dashboard-empty">正在載入…</li></ol>
       </section>
     </div>
+    <section class="table-heatmap-section" aria-labelledby="tableHeatmapHeading">
+      <div class="dashboard-section-heading"><div><p class="eyebrow">TABLE POPULARITY</p><h2 id="tableHeatmapHeading">本月桌次熱區</h2></div><span class="dashboard-note">非取消訂單・依下單數計算</span></div>
+      <p class="dashboard-explainer">顏色越深表示訂單越多；桌號為示意排列，並非店內實際座位配置。</p>
+      <p id="tableHeatmapSummary" class="heatmap-summary" role="status">正在載入…</p>
+      <ul id="tableHeatmap" class="table-heatmap" aria-label="各桌本月訂單數"></ul>
+    </section>
     <p id="updatedAt" class="updated-at">數據每 30 秒更新</p>
   </main>
   <footer class="site-footer"><span>GOOD MORNING CLUB · BREAKFAST MADE BETTER</span><nav aria-label="店家工具"><a href="admin.html">店家管理</a><a href="index.html">返回點餐頁</a></nav></footer>

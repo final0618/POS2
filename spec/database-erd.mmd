@@ -1,6 +1,8 @@
 erDiagram
     MENU_ITEMS ||--o{ ORDER_ITEMS : contains
     ORDERS ||--|{ ORDER_ITEMS : includes
+    MENU_ITEMS ||--o{ COMPETITOR_PRICES : compares
+    COMPETITORS ||--o{ COMPETITOR_PRICES : supplies
 
     MENU_ITEMS {
         TEXT id PK
@@ -54,4 +56,13 @@ erDiagram
         TEXT source_checked_at
         TEXT notes
         INTEGER is_active
+    }
+    COMPETITOR_PRICES {
+        TEXT competitor_id PK, FK
+        TEXT menu_item_id PK, FK
+        INTEGER price
+        TEXT product_name
+        TEXT price_source_url
+        TEXT price_checked_at
+        TEXT price_notes
     }

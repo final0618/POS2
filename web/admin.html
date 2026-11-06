@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#c72c31">
+  <meta name="description" content="Good Morning Club 店家管理">
+  <title>店家管理 | Good Morning Club</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="admin-dashboard.css">
+  <link rel="stylesheet" href="competitors.css">
+  <script src="admin.js" defer></script>
+</head>
+<body class="admin-page">
+  <div class="ticker"><span>GOOD FOOD. GOOD MOOD.</span><i></i><span>店家管理</span></div>
+  <header class="site-header admin-site-header">
+    <a class="wordmark" href="index.html" aria-label="返回點餐頁"><span class="brand-mark" aria-hidden="true">G</span><span><strong>GOOD MORNING</strong><small>BREAKFAST CLUB</small></span></a>
+    <nav class="admin-header-links" aria-label="店家工具"><a href="dashboard.html">營運儀表板</a><a href="index.html">返回點餐頁</a></nav>
+  </header>
+  <main class="admin-shell">
+    <section id="loginView" class="admin-login" aria-labelledby="loginTitle">
+      <p class="eyebrow">STAFF ACCESS</p>
+      <h1 id="loginTitle">店家管理登入</h1>
+      <p class="admin-muted">請使用店家管理帳號登入。</p>
+      <form id="loginForm" class="login-form">
+        <label for="adminUsername">管理帳號</label>
+        <input id="adminUsername" name="username" type="text" autocomplete="username" required maxlength="128">
+        <label for="adminPassword">密碼</label>
+        <input id="adminPassword" name="password" type="password" autocomplete="current-password" required maxlength="256">
+        <p id="loginMessage" class="admin-message" role="alert" hidden></p>
+        <button class="admin-primary-button" type="submit">登入管理系統 <span aria-hidden="true">→</span></button>
+      </form>
+    </section>
+
+    <section id="adminWorkspace" hidden>
+      <div class="admin-title-row">
+        <div><p class="eyebrow">STORE OPERATIONS</p><h1>店家管理</h1></div>
+        <div class="admin-account"><span id="signedInUser"></span><button id="logoutButton" class="admin-quiet-button" type="button">登出</button></div>
+      </div>
+      <nav class="admin-tabs" role="tablist" aria-label="管理項目">
+        <button id="overviewTab" class="admin-tab" type="button" role="tab" aria-selected="false" aria-controls="overviewPanel" data-panel="overviewPanel">營運概覽</button>
+        <button id="ordersTab" class="admin-tab" type="button" role="tab" aria-selected="true" aria-controls="ordersPanel" data-panel="ordersPanel">訂單處理</button>
+        <button id="menuTab" class="admin-tab" type="button" role="tab" aria-selected="false" aria-controls="menuPanel" data-panel="menuPanel">菜單管理</button>
+        <button id="competitorsTab" class="admin-tab" type="button" role="tab" aria-selected="false" aria-controls="competitorsPanel" data-panel="competitorsPanel">競業資料</button>
+      </nav>
+      <p id="workspaceMessage" class="admin-message" role="status" aria-live="polite" hidden></p>
+
+      <section id="overviewPanel" class="admin-panel" role="tabpanel" aria-labelledby="overviewTab" hidden>
+        <div class="admin-section-heading">
+          <div><p class="eyebrow">STORE PERFORMANCE</p><h2>營運概覽</h2><p id="adminDashboardPeriod" class="dashboard-period">統計時區：台北時間</p></div>
+          <div class="admin-dashboard-actions"><span id="adminDashboardStatus" role="status" aria-live="polite">尚未更新</span><button id="refreshAdminDashboard" class="admin-quiet-button" type="button">更新數據</button></div>
+        </div>
+        <section class="sales-section admin-sales-section" aria-labelledby="adminSalesHeading">
+          <div class="dashboard-section-heading"><div><p class="eyebrow">REVENUE</p><h3 id="adminSalesHeading">營業額</h3></div><p class="dashboard-note">非取消訂單總額，包含待付款</p></div>
+          <div class="sales-grid" aria-live="polite">
+            <article class="sales-metric"><p>本日</p><strong id="adminTodaySales">NT$ 0</strong><span>台北時間 00:00 至今</span></article>
+            <article class="sales-metric"><p>本週</p><strong id="adminWeekSales">NT$ 0</strong><span>週一至週日</span></article>
+            <article class="sales-metric"><p>本月</p><strong id="adminMonthSales">NT$ 0</strong><span>本月累計</span></article>
+          </div>
+        </section>
+        <div class="dashboard-columns admin-dashboard-columns">
+          <section class="dashboard-panel" aria-labelledby="adminProductsHeading"><div class="dashboard-section-heading"><div><p class="eyebrow">BEST SELLERS</p><h3 id="adminProductsHeading">本月熱銷商品</h3></div><span class="dashboard-note">依銷售數量排序</span></div><ol id="adminTopProducts" class="rank-list"><li class="dashboard-empty">正在載入…</li></ol></section>
+          <section class="dashboard-panel" aria-labelledby="adminTimesHeading"><div class="dashboard-section-heading"><div><p class="eyebrow">ORDER RHYTHM</p><h3 id="adminTimesHeading">熱門下單時段</h3></div><span class="dashboard-note">本月・每 30 分鐘</span></div><p class="dashboard-explainer">依訂單建立時間分箱，不代表預約到店時間。</p><ol id="adminPopularTimes" class="time-list"><li class="dashboard-empty">正在載入…</li></ol></section>
+        </div>
+      </section>
+
+      <section id="ordersPanel" class="admin-panel" role="tabpanel" aria-labelledby="ordersTab">
+        <div class="admin-section-heading">
+          <div><p class="eyebrow">ORDER QUEUE</p><h2>訂單處理</h2></div>
+          <div class="admin-filters"><label for="orderStatusFilter">狀態</label><select id="orderStatusFilter"><option value="">全部訂單</option><option value="received">待處理</option><option value="preparing">製作中</option><option value="ready">可取餐</option><option value="completed">已完成</option><option value="cancelled">已取消</option></select><button id="refreshOrders" class="admin-quiet-button" type="button">更新訂單</button></div>
+        </div>
+        <div id="ordersList" class="orders-list" aria-live="polite"><p class="admin-empty">正在載入訂單…</p></div>
+      </section>
+
+      <section id="menuPanel" class="admin-panel" role="tabpanel" aria-labelledby="menuTab" hidden>
+        <div class="admin-section-heading">
+          <div><p class="eyebrow">MENU CATALOG</p><h2>菜單管理</h2></div>
+          <p class="admin-muted">停售餐點仍保留在歷史訂單中。</p>
+        </div>
+        <form id="menuForm" class="menu-editor">
+          <div class="editor-heading"><h3 id="menuFormTitle">新增餐點</h3><button id="cancelEdit" class="admin-quiet-button" type="button" hidden>取消編輯</button></div>
+          <div class="editor-grid">
+            <label>餐點 ID<input id="menuId" name="id" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" required maxlength="80" placeholder="例如：egg-toast"></label>
+            <label>餐點名稱<input id="menuName" name="name" required maxlength="120"></label>
+            <label>分類<input id="menuCategory" name="category" required maxlength="80"></label>
+            <label>價格（NT$）<input id="menuPrice" name="price" type="number" min="0" max="1000000" step="1" required></label>
+            <label>標籤<input id="menuBadge" name="badge" required maxlength="40"></label>
+            <label>圖片網址<input id="menuImage" name="image_url" type="url" required maxlength="2048"></label>
+            <label class="editor-wide">圖片替代文字<input id="menuAlt" name="alt_text" required maxlength="240"></label>
+            <label class="editor-wide">餐點描述<textarea id="menuDescription" name="description" required maxlength="500" rows="2"></textarea></label>
+          </div>
+          <div class="editor-actions"><label class="availability-toggle"><input id="menuAvailable" name="is_available" type="checkbox" checked> 供應中</label><button class="admin-primary-button" type="submit"><span id="saveMenuLabel">新增餐點</span></button></div>
+        </form>
+        <div class="menu-table-wrap"><table class="menu-table"><thead><tr><th>餐點</th><th>分類</th><th>價格</th><th>供應狀態</th><th><span class="visually-hidden">操作</span></th></tr></thead><tbody id="menuRows"><tr><td colspan="5" class="admin-empty">正在載入菜單…</td></tr></tbody></table></div>
+      </section>
+
+      <section id="competitorsPanel" class="admin-panel" role="tabpanel" aria-labelledby="competitorsTab" hidden>
+        <div class="admin-section-heading">
+          <div><p class="eyebrow">LOCAL MARKET</p><h2>競業資料</h2></div>
+          <div class="admin-filters"><label for="competitorSearch">搜尋</label><input id="competitorSearch" class="competitor-search" type="search" placeholder="店名、地址或類型"><button id="refreshCompetitors" class="admin-quiet-button" type="button">重新整理</button></div>
+        </div>
+        <p class="competitor-source-note">初始資料來源為 Google 地圖搜尋結果；評分、評論數與營業資訊會變動，請以店家最新公告為準。未查證的電話/價格不填。</p>
+        <form id="competitorForm" class="competitor-editor">
+          <div class="editor-heading"><h3 id="competitorFormTitle">新增競業資料</h3><button id="cancelCompetitorEdit" class="admin-quiet-button" type="button" hidden>取消編輯</button></div>
+          <div class="competitor-grid">
+            <label>資料 ID<input id="competitorId" required maxlength="120" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="例如：maps-shop-id"></label>
+            <label>店家名稱<input id="competitorName" required maxlength="160"></label>
+            <label>類型<input id="competitorCategory" required maxlength="80" placeholder="早餐店 / 早午餐餐廳"></label>
+            <label class="competitor-wide">地址<input id="competitorAddress" required maxlength="240"></label>
+            <label>地圖評分<input id="competitorRating" type="number" min="0" max="5" step="0.1"></label>
+            <label>評論數<input id="competitorReviews" type="number" min="0" step="1"></label>
+            <label>緯度<input id="competitorLatitude" type="number" min="-90" max="90" step="any"></label>
+            <label>經度<input id="competitorLongitude" type="number" min="-180" max="180" step="any"></label>
+            <label class="competitor-wide">營業資訊摘要<input id="competitorHours" maxlength="500" placeholder="以來源查核結果填寫"></label>
+            <label>電話（選填）<input id="competitorPhone" type="tel" maxlength="40"></label>
+            <label>網站（選填）<input id="competitorWebsite" type="url" maxlength="2048"></label>
+            <label class="competitor-wide">資料來源 URL<input id="competitorSourceUrl" type="url" required maxlength="2048"></label>
+            <label>查核日期<input id="competitorCheckedAt" type="date" required></label>
+            <label class="competitor-wide">備註<textarea id="competitorNotes" rows="2" maxlength="1000"></textarea></label>
+          </div>
+          <div class="editor-actions"><label class="availability-toggle"><input id="competitorActive" type="checkbox" checked> 啟用此競品資料</label><button class="admin-primary-button" type="submit"><span id="saveCompetitorLabel">新增資料</span></button></div>
+        </form>
+        <div class="competitor-list" id="competitorList" aria-live="polite"><p class="admin-empty">正在載入競業資料…</p></div>
+      </section>
+    </section>
+  </main>
+  <footer class="site-footer"><span>GOOD MORNING CLUB · BREAKFAST MADE BETTER</span><nav aria-label="返回連結"><a href="dashboard.html">營運儀表板</a><a href="index.html">點餐頁</a></nav></footer>
+</body>
+</html>

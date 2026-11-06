@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#c72c31">
+  <meta name="description" content="Good Morning Club 營運儀表板">
+  <title>營運儀表板 | Good Morning Club</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="dashboard.css">
+  <script src="dashboard.js" defer></script>
+</head>
+<body class="dashboard-page">
+  <div class="ticker"><span>GOOD FOOD. GOOD MOOD.</span><i></i><span>營運數據</span></div>
+  <header class="site-header dashboard-site-header">
+    <a class="wordmark" href="index.html" aria-label="返回點餐頁"><span class="brand-mark" aria-hidden="true">G</span><span><strong>GOOD MORNING</strong><small>BREAKFAST CLUB</small></span></a>
+    <a class="back-link" href="index.html">返回點餐頁 <span aria-hidden="true">→</span></a>
+  </header>
+  <main class="dashboard-shell">
+    <section class="dashboard-heading" aria-labelledby="dashboardTitle">
+      <div>
+        <p class="eyebrow">STORE PERFORMANCE</p>
+        <h1 id="dashboardTitle">營運儀表板</h1>
+        <p id="dashboardPeriod" class="dashboard-period">統計時區：台北時間</p>
+      </div>
+      <div class="dashboard-actions">
+        <span id="dashboardStatus" role="status" aria-live="polite">正在載入數據…</span>
+        <button id="refreshDashboard" class="refresh-button" type="button" aria-label="立即更新儀表板"><span aria-hidden="true">↻</span> 更新</button>
+      </div>
+    </section>
+
+    <section class="sales-section" aria-labelledby="salesHeading">
+      <div class="dashboard-section-heading">
+        <div><p class="eyebrow">REVENUE</p><h2 id="salesHeading">營業額</h2></div>
+        <p id="salesDefinition" class="dashboard-note">統計非取消訂單，包含待付款</p>
+      </div>
+      <div class="sales-grid" aria-live="polite">
+        <article class="sales-metric"><p>本日</p><strong id="todaySales">NT$ 0</strong><span>台北時間 00:00 至今</span></article>
+        <article class="sales-metric"><p>本週</p><strong id="weekSales">NT$ 0</strong><span>週一至週日</span></article>
+        <article class="sales-metric"><p>本月</p><strong id="monthSales">NT$ 0</strong><span>本月累計</span></article>
+      </div>
+    </section>
+
+    <div class="dashboard-columns">
+      <section class="dashboard-panel" aria-labelledby="productsHeading">
+        <div class="dashboard-section-heading">
+          <div><p class="eyebrow">BEST SELLERS</p><h2 id="productsHeading">本月熱銷商品</h2></div>
+          <span class="dashboard-note">依銷售數量排序</span>
+        </div>
+        <ol id="topProducts" class="rank-list" aria-live="polite"><li class="dashboard-empty">正在載入…</li></ol>
+      </section>
+      <section class="dashboard-panel" aria-labelledby="timesHeading">
+        <div class="dashboard-section-heading">
+          <div><p class="eyebrow">ORDER RHYTHM</p><h2 id="timesHeading">熱門下單時段</h2></div>
+          <span class="dashboard-note">本月・每 30 分鐘</span>
+        </div>
+        <p class="dashboard-explainer">依訂單建立時間分箱，不代表預約到店時間。</p>
+        <ol id="popularTimes" class="time-list" aria-live="polite"><li class="dashboard-empty">正在載入…</li></ol>
+      </section>
+    </div>
+    <p id="updatedAt" class="updated-at">數據每 30 秒更新</p>
+  </main>
+  <footer class="site-footer"><span>GOOD MORNING CLUB · BREAKFAST MADE BETTER</span><nav aria-label="店家工具"><a href="admin.html">店家管理</a><a href="index.html">返回點餐頁</a></nav></footer>
+</body>
+</html>

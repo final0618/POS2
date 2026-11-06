@@ -1,0 +1,104 @@
+# 前端規格
+
+## 目的
+
+建立不使用前端框架的早餐點餐網站，菜單資料與營運數據由 FastAPI 提供，持久資料使用 SQLite。
+
+## 檔案與頁面
+
+- 點餐首頁：`web/index.html`
+- 營運儀表板：`web/dashboard.html`
+- 店家管理：`web/admin.html`
+- QR Code 列印：`web/qr-print.html`；QR Code 在瀏覽器端產生，不呼叫後端 API。
+- 共用前端程式：`web/app.js`
+- 店家管理程式：`web/admin.js`
+- 儀表板程式：`web/dashboard.js`
+
+## 點餐首頁
+
+### 菜單
+
+- 載入時呼叫 `GET /api/menu`，只顯示供應中的餐點。
+- 菜單欄位為 `id`、`name`、`category`、`description`、`price`、`badge`、`image`、`alt`；不可在前端硬編碼餐點資料。
+- 分類依 API 資料動態產生；載入中顯示狀態，失敗時顯示訊息及重試按鈕。
+
+### 訂單
+
+- 支援選擇 01 至 12 桌、分類篩選、加入/調整/移除購物車、確認與送出訂單。
+- 送出時呼叫 `POST /api/orders`，只傳桌號、餐點 ID 與數量，不傳價格。
+- HTTP 201 時以後端回傳的訂單編號、商品快照與總額顯示完成畫面，並清空購物車。
+- HTTP 422 或網路錯誤時顯示錯誤並保留購物車；送出期間停用按鈕，避免重複送單。
+
+## 營運儀表板
+
+- 獨立頁面與店家管理頁的「營運概覽」頁籤共用 `GET /api/dashboard`。
+- 顯示本日、本週、本月營業額、本月熱銷商品及本月熱門下單時段。
+- 使用台北時區；營業額排除取消訂單並包含待付款訂單；熱銷商品按銷售數量排序。
+- 熱門時段依訂單建立時間每 30 分鐘分箱，畫面需標示這不是顧客預約到店時間。
+- 獨立儀表板可手動更新並每 30 秒更新；管理後台僅在營運概覽頁籤開啟時每 30 秒更新。
+
+## 店家管理
+
+- 管理頁登入後提供「營運概覽」、「訂單處理」、「菜單管理」三個頁籤。
+- 管理帳號由 `ADMIN_USERNAME`、`ADMIN_PASSWORD`、`ADMIN_SESSION_SECRET` 環境變數設定；前端不得儲存密碼。
+- 登入由後端簽發 8 小時 HttpOnly、SameSite=Strict session cookie；登出清除 cookie。管理 API 未登入時不得讀取或修改管理資料。
+- 菜單管理支援新增/編輯商品及上下架。必填商品欄位：ID、名稱、分類、描述、價格、標籤、圖片網址及替代文字。
+- 訂單處理支援按狀態篩選、查看訂單明細、桌號、金額及時間，並更新訂單狀態與付款狀態。
+- 停售商品只切換供應狀態，不刪除資料，以保留訂單歷史快照。
+
+## API 契約
+
+### 取得菜單
+
+`GET /api/menu` 回傳 HTTP 200：
+
+```json
+{
+  "items": [
+    {
+      "id": "sunny-plate",
+      "name": "美式陽光早午餐盤",
+      "category": "招牌早午餐",
+      "description": "太陽蛋、香煎培根、薯餅與奶油吐司，一盤開啟好早晨。",
+      "price": 220,
+      "badge": "人氣招牌",
+      "image": "https://example.com/menu.jpg",
+      "alt": "早餐盤"
+    }
+  ]
+}
+```
+
+### 建立訂單
+
+`POST /api/orders` 請求範例：
+
+```json
+{
+  "table_number": "01",
+  "items": [
+    {
+      "menu_item_id": "sunny-plate",
+      "quantity": 2
+    }
+  ]
+}
+```
+
+成功回傳 HTTP 201，訂單狀態為 `received`、付款狀態為 `unpaid`；價格及總額以後端資料庫計算為準。
+
+### 儀表板
+
+`GET /api/dashboard` 回傳 `generated_at`、`timezone`、`sales`（`today`、`week`、`month`）、`top_products` 與 `popular_times`。熱門時段的 `time` 為 `HH:00` 或 `HH:30`。
+
+## 測試
+
+- 確認首頁菜單由 API 載入，分類、圖片及價格符合 SQLite 資料。
+- 送出有效訂單，確認完成畫面顯示回應訂單資料且購物車清空；測試無效桌號/餐點及網路錯誤時購物車保留。
+- 確認獨立 dashboard 與管理後台營運概覽使用相同 API 和統計口徑。
+- 確認未登入不能使用管理 API；登入後測試商品新增、編輯、停售及訂單狀態/付款狀態更新；登出後確認 session 失效。
+- 測試資料須在驗收後清理。
+
+## 啟動
+
+在專案根目錄執行 `run.bat`。需先設定管理環境變數；詳細設定參考 `spec/backend.md`。

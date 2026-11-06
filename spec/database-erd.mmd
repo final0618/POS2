@@ -37,3 +37,21 @@ erDiagram
         TEXT input_text
         TEXT created_at
     }
+
+    COMPETITORS {
+        TEXT id PK
+        TEXT name
+        TEXT category
+        TEXT address
+        REAL latitude
+        REAL longitude
+        REAL rating
+        INTEGER review_count
+        TEXT business_hours
+        TEXT phone
+        TEXT website_url
+        TEXT source_url
+        TEXT source_checked_at
+        TEXT notes
+        INTEGER is_active
+    }

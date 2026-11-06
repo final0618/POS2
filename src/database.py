@@ -88,6 +88,69 @@ MENU_ITEMS = [
     ),
 ]
 
+COMPETITORS = [
+    (
+        "maps-0x34693d8a861cd28d-0x21e2347928be2b0d",
+        "大方早餐店",
+        "早餐店",
+        "青海路二段240-5號",
+        24.1704139,
+        120.6456991,
+        4.3,
+        223,
+        "Google Maps 查詢顯示週六 05:00 開始營業",
+        "https://www.google.com/maps/place/%E5%A4%A7%E6%96%B9%E6%97%A9%E9%A4%90%E5%BA%97/data=!4m7!3m6!1s0x34693d8a861cd28d:0x21e2347928be2b0d!8m2!3d24.1704139!4d120.6456991!16s%2Fg%2F11c18pwxsk!19sChIJjdIchoo9aTQRDSu-KHk04iE?hl=zh-TW",
+    ),
+    (
+        "maps-0x34693d8a7db24a8b-0xe860637d146b932b",
+        "春三朝午",
+        "早午餐餐廳",
+        "上石路179號",
+        24.170511,
+        120.6460165,
+        4.5,
+        4242,
+        "Google Maps 查詢顯示營業中，17:30 打烊",
+        "https://www.google.com/maps/place/%E6%98%A5%E4%B8%89%E6%9C%9D%E5%8D%88/data=!4m7!3m6!1s0x34693d8a7db24a8b:0xe860637d146b932b!8m2!3d24.170511!4d120.6460165!16s%2Fg%2F11c1lk4439!19sChIJi0qyfYo9aTQRK5NrFH1jYOg?hl=zh-TW",
+    ),
+    (
+        "maps-0x34691620354e51e9-0xfe564d4fa2effa2c",
+        "心饗晨坊 早午餐",
+        "早餐店",
+        "西屯路二段269-28號",
+        24.1739093,
+        120.6443584,
+        4.1,
+        557,
+        "Google Maps 查詢顯示週六 06:30 開始營業",
+        "https://www.google.com/maps/place/%E5%BF%83%E9%A5%97%E6%99%A8%E5%9D%8A+%E6%97%A9%E5%8D%88%E9%A4%90/data=!4m7!3m6!1s0x34691620354e51e9:0xfe564d4fa2effa2c!8m2!3d24.1739093!4d120.6443584!16s%2Fg%2F11cn0t6blz!19sChIJ6VFONSAWaTQRLPrvok9NVv4?hl=zh-TW",
+    ),
+    (
+        "maps-0x3469175414a011cf-0xf747747f28d56fc8",
+        "尚美早餐店",
+        "早餐店",
+        "至善路118號",
+        24.1736466,
+        120.6416,
+        4.8,
+        36,
+        "Google Maps 查詢顯示週六 06:00 開始營業",
+        "https://www.google.com/maps/place/%E5%B0%9A%E7%BE%8E%E6%97%A9%E9%A4%90%E5%BA%97/data=!4m7!3m6!1s0x3469175414a011cf:0xf747747f28d56fc8!8m2!3d24.1736466!4d120.6416!16s%2Fg%2F11fhz0lccl!19sChIJzxGgFFQXaTQRyG_VKH90R_c?hl=zh-TW",
+    ),
+    (
+        "maps-0x34691737df10e107-0x53a9aeaf4dfc6f1c",
+        "微早晨 We Brunch 手作早午餐",
+        "早餐店",
+        "櫻花路76號",
+        24.1707839,
+        120.6513587,
+        4.0,
+        492,
+        "Google Maps 查詢顯示即將打烊 14:00，週六 06:30 開始營業",
+        "https://www.google.com/maps/place/%E5%BE%AE%E6%97%A9%E6%99%A8+We+Brunch+%E6%89%8B%E4%BD%9C%E6%97%A9%E5%8D%88%E9%A4%90/data=!4m7!3m6!1s0x34691737df10e107:0x53a9aeaf4dfc6f1c!8m2!3d24.1707839!4d120.6513587!16s%2Fg%2F11mhp3f5sm!19sChIJB-EQ3zcXaTQRHG_8Ta-uqVM?hl=zh-TW",
+    ),
+]
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS menu_items (
     id TEXT PRIMARY KEY,
@@ -132,6 +195,29 @@ CREATE TABLE IF NOT EXISTS inputs (
     input_text TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
+
+CREATE TABLE IF NOT EXISTS competitors (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL,
+    address TEXT NOT NULL,
+    latitude REAL,
+    longitude REAL,
+    rating REAL CHECK (rating IS NULL OR (rating >= 0 AND rating <= 5)),
+    review_count INTEGER CHECK (review_count IS NULL OR review_count >= 0),
+    business_hours TEXT,
+    phone TEXT,
+    website_url TEXT,
+    source_url TEXT NOT NULL,
+    source_checked_at TEXT NOT NULL,
+    notes TEXT NOT NULL DEFAULT '',
+    is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1))
+);
+
+CREATE INDEX IF NOT EXISTS idx_competitors_name
+    ON competitors(name);
+CREATE INDEX IF NOT EXISTS idx_competitors_category
+    ON competitors(category);
 """
 
 
@@ -149,6 +235,27 @@ def initialize_database(db_path: str | Path = DB_PATH) -> Path:
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             MENU_ITEMS,
+        )
+        connection.executemany(
+            """
+            INSERT OR IGNORE INTO competitors (
+                id, name, category, address, latitude, longitude, rating,
+                review_count, business_hours, phone, website_url, source_url,
+                source_checked_at, notes
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                (
+                    competitor_id, name.strip(), category.strip(), address.strip(), latitude, longitude,
+                    rating, review_count, business_hours.strip(), None, None, source_url.strip(),
+                    "2026-11-06",
+                    "來源：Google 地圖搜尋「早餐店 上石路 台中市西屯區」。評分、評論數與營業資訊為查詢當時顯示，請以店家最新公告為準。",
+                )
+                for (
+                    competitor_id, name, category, address, latitude, longitude,
+                    rating, review_count, business_hours, source_url,
+                ) in COMPETITORS
+            ],
         )
 
     return database_path

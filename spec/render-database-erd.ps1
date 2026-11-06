@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 
 $width = 1960
-$height = 1390
+$height = 2200
 $bitmap = [System.Drawing.Bitmap]::new($width, $height)
 $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
 $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
@@ -36,7 +36,7 @@ $linePen = [System.Drawing.Pen]::new($line, 1)
 $relationPen = [System.Drawing.Pen]::new($teal, 4)
 
 $graphics.DrawString('Good Morning Club | Database ER Diagram', $titleFont, $inkBrush, 58, 38)
-$graphics.DrawString('SQLite: data/pos.db    |    4 entities    |    Money stored as INTEGER NTD', $subtitleFont, $mutedBrush, 62, 91)
+$graphics.DrawString('SQLite: data/pos.db    |    5 entities    |    Money stored as INTEGER NTD', $subtitleFont, $mutedBrush, 62, 91)
 
 $menuRows = @(
     @{ Key='PK'; Field='id'; Type='TEXT'; Note='Product identifier' },
@@ -69,6 +69,23 @@ $inputRows = @(
     @{ Key='PK'; Field='id'; Type='INTEGER'; Note='Auto increment' },
     @{ Key=''; Field='input_text'; Type='TEXT'; Note='User text' },
     @{ Key=''; Field='created_at'; Type='TEXT'; Note='UTC timestamp' }
+)
+$competitorRows = @(
+    @{ Key='PK'; Field='id'; Type='TEXT'; Note='Source place identifier' },
+    @{ Key=''; Field='name'; Type='TEXT'; Note='Business name' },
+    @{ Key=''; Field='category'; Type='TEXT'; Note='Business category' },
+    @{ Key=''; Field='address'; Type='TEXT'; Note='Street address' },
+    @{ Key=''; Field='latitude'; Type='REAL'; Note='Map latitude; nullable' },
+    @{ Key=''; Field='longitude'; Type='REAL'; Note='Map longitude; nullable' },
+    @{ Key=''; Field='rating'; Type='REAL'; Note='Source rating, 0-5; nullable' },
+    @{ Key=''; Field='review_count'; Type='INTEGER'; Note='Source review count; nullable' },
+    @{ Key=''; Field='business_hours'; Type='TEXT'; Note='Hours summary at verification time' },
+    @{ Key=''; Field='phone'; Type='TEXT'; Note='Phone; nullable' },
+    @{ Key=''; Field='website_url'; Type='TEXT'; Note='Website; nullable' },
+    @{ Key=''; Field='source_url'; Type='TEXT'; Note='Source record URL' },
+    @{ Key=''; Field='source_checked_at'; Type='TEXT'; Note='Verification date YYYY-MM-DD' },
+    @{ Key=''; Field='notes'; Type='TEXT'; Note='Verification notes' },
+    @{ Key=''; Field='is_active'; Type='INTEGER'; Note='Active flag: 0 or 1' }
 )
 
 function Draw-Entity($X, $Y, $Width, $Name, $Rows, $Accent, $RowHeight) {
@@ -122,14 +139,17 @@ Draw-Entity 55 170 850 'menu_items | Menu' $menuRows $red 42
 Draw-Entity 1120 170 790 'orders | Order header' $orderRows $teal 42
 Draw-Entity 530 790 890 'order_items | Order lines' $itemRows $yellow 42
 Draw-Entity 1490 800 420 'inputs | Input log' $inputRows $red 47
+Draw-Entity 55 1400 1850 'competitors | Local market' $competitorRows $teal 37
 
-$graphics.DrawLine($linePen, 58, 1270, 1900, 1270)
-$graphics.DrawString('PK = primary key    |    FK = foreign key    |    order_items uses composite PK (order_id, menu_item_id)', $footerFont, $inkBrush, 62, 1285)
-$graphics.DrawString('Relationships: menu_items 1 : 0..N order_items    |    orders 1 : 1..N order_items    |    inputs is independent', $footerFont, $mutedBrush, 62, 1315)
+$graphics.DrawLine($linePen, 58, 2080, 1900, 2080)
+$graphics.DrawString('PK = primary key    |    FK = foreign key    |    order_items uses composite PK (order_id, menu_item_id)', $footerFont, $inkBrush, 62, 2095)
+$graphics.DrawString('Relationships: menu_items 1 : 0..N order_items    |    orders 1 : 1..N order_items    |    inputs and competitors are independent', $footerFont, $mutedBrush, 62, 2125)
 
-$output = Join-Path $PSScriptRoot 'database-erd.jpg'
+$output = Join-Path $PSScriptRoot 'er.jpg'
 $bitmap.Save($output, [System.Drawing.Imaging.ImageFormat]::Jpeg)
+$legacyOutput = Join-Path $PSScriptRoot 'database-erd.jpg'
+$bitmap.Save($legacyOutput, [System.Drawing.Imaging.ImageFormat]::Jpeg)
 $graphics.Dispose(); $bitmap.Dispose()
 $titleFont.Dispose(); $subtitleFont.Dispose(); $headerFont.Dispose(); $columnFont.Dispose(); $fieldFont.Dispose(); $typeFont.Dispose(); $noteFont.Dispose(); $footerFont.Dispose()
 $inkBrush.Dispose(); $mutedBrush.Dispose(); $whiteBrush.Dispose(); $redBrush.Dispose(); $tealBrush.Dispose(); $yellowBrush.Dispose(); $linePen.Dispose(); $relationPen.Dispose()
-Get-Item $output | Select-Object FullName, Length
+Get-Item $output, $legacyOutput | Select-Object FullName, Length

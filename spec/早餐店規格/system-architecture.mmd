@@ -1,0 +1,51 @@
+flowchart TB
+    customer["顧客"] --> orderPage["點餐頁<br/>index.html"]
+    customer --> memberPage["會員頁<br/>member.html"]
+    staff["店家管理員"] --> adminPage["管理後台<br/>admin.html"]
+    staff --> dashboard["營運儀表板<br/>dashboard.html"]
+    staff --> qr["QR Code 列印頁<br/>qr-print.html"]
+
+    subgraph frontend["前端：瀏覽器"]
+        orderPage
+        memberPage
+        adminPage
+        dashboard
+        qr
+    end
+
+    subgraph backend["後端：FastAPI"]
+        static["靜態頁面服務"]
+        orderApi["菜單與訂單 API"]
+        memberApi["會員登入與點數 API"]
+        adminApi["管理員 API"]
+        dashboardApi["營運統計 API"]
+        loyalty["紅利點數邏輯<br/>累點、折抵、到期、沖銷"]
+    end
+
+    static --> frontend
+    orderPage --> orderApi
+    orderPage --> memberApi
+    memberPage --> memberApi
+    adminPage --> adminApi
+    adminPage --> dashboardApi
+    dashboard --> dashboardApi
+
+    orderApi --> memberApi
+    orderApi --> loyalty
+    memberApi --> loyalty
+    adminApi --> loyalty
+
+    subgraph database["SQLite：data/pos.db"]
+        orders[("菜單與訂單")]
+        members[("會員與登入")]
+        points[("點數規則、帳本與批次")]
+        competitors[("競業資料")]
+    end
+
+    orderApi --> orders
+    memberApi --> members
+    adminApi --> orders
+    adminApi --> members
+    adminApi --> competitors
+    dashboardApi --> orders
+    loyalty --> points

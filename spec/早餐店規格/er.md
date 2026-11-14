@@ -5,7 +5,7 @@
 - 檔案：`data/pos.db`
 - 引擎：SQLite
 - 既有資料表：`menu_items`、`orders`、`order_items`、`inputs`、`competitors`、`competitor_prices`。
-- 會員與紅利資料表及完整新 ERD：見 [會員紅利 ERD](./紅利績點/ERD.mmd)；實際遷移與欄位以 `src/loyalty_schema.py` 為準。
+- 會員與紅利資料表及完整新 ERD：見 [會員紅利 ERD](../紅利績點/ERD.mmd)；實際遷移與欄位以 `src/loyalty_schema.py` 為準。
 - 目前 ER 圖：![Good Morning Club SQLite ER diagram](er.jpg)
 - 金額以新台幣整數儲存；資料庫時間為 UTC ISO 8601 字串。Dashboard 統計時轉換為 `Asia/Taipei`。
 

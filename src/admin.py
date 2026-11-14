@@ -243,25 +243,41 @@ def update_menu_item(
 
 @router.get("/orders")
 def get_admin_orders(
+    table_number: str | None = Query(default=None),
     status: str | None = Query(default=None),
+    payment_status: str | None = Query(default=None),
     limit: int = Query(default=100, ge=1, le=200),
     _: str = Depends(require_admin),
 ) -> dict[str, list[dict[str, object]]]:
     allowed_statuses = {"received", "preparing", "ready", "completed", "cancelled"}
+    allowed_payment_statuses = {"unpaid", "paid", "refunded"}
+    allowed_table_numbers = {f"{number:02d}" for number in range(1, 13)}
+    if table_number is not None and table_number not in allowed_table_numbers:
+        raise HTTPException(status_code=422, detail="Invalid table number.")
     if status is not None and status not in allowed_statuses:
         raise HTTPException(status_code=422, detail="Invalid order status.")
+    if payment_status is not None and payment_status not in allowed_payment_statuses:
+        raise HTTPException(status_code=422, detail="Invalid payment status.")
 
+    filters = []
+    parameters: list[str | int] = []
+    if table_number is not None:
+        filters.append("table_number = ?")
+        parameters.append(table_number)
+    if status is not None:
+        filters.append("status = ?")
+        parameters.append(status)
+    if payment_status is not None:
+        filters.append("payment_status = ?")
+        parameters.append(payment_status)
+    query = "SELECT * FROM orders"
+    if filters:
+        query += " WHERE " + " AND ".join(filters)
+    query += " ORDER BY created_at DESC LIMIT ?"
+    parameters.append(limit)
     with closing(sqlite3.connect(DB_PATH)) as connection:
         connection.row_factory = sqlite3.Row
-        if status is None:
-            orders = connection.execute(
-                "SELECT * FROM orders ORDER BY created_at DESC LIMIT ?", (limit,)
-            ).fetchall()
-        else:
-            orders = connection.execute(
-                "SELECT * FROM orders WHERE status = ? ORDER BY created_at DESC LIMIT ?",
-                (status, limit),
-            ).fetchall()
+        orders = connection.execute(query, parameters).fetchall()
         result = []
         for order in orders:
             items = connection.execute(

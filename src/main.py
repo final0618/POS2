@@ -6,6 +6,7 @@ from uuid import uuid4
 from zoneinfo import ZoneInfo
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -33,6 +34,13 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="Good Morning Club API", lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=False,
+)
 app.include_router(admin_router)
 
 

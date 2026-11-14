@@ -87,7 +87,12 @@
       <section id="ordersPanel" class="admin-panel" role="tabpanel" aria-labelledby="ordersTab">
         <div class="admin-section-heading">
           <div><p class="eyebrow">ORDER QUEUE</p><h2>訂單處理</h2></div>
-          <div class="admin-filters"><label for="orderStatusFilter">狀態</label><select id="orderStatusFilter"><option value="">全部訂單</option><option value="received">待處理</option><option value="preparing">製作中</option><option value="ready">可取餐</option><option value="completed">已完成</option><option value="cancelled">已取消</option></select><button id="refreshOrders" class="admin-quiet-button" type="button">更新訂單</button></div>
+          <div class="admin-filters order-filters">
+            <label for="orderTableFilter">桌號<select id="orderTableFilter"><option value="">全部桌號</option><option value="01">01 桌</option><option value="02">02 桌</option><option value="03">03 桌</option><option value="04">04 桌</option><option value="05">05 桌</option><option value="06">06 桌</option><option value="07">07 桌</option><option value="08">08 桌</option><option value="09">09 桌</option><option value="10">10 桌</option><option value="11">11 桌</option><option value="12">12 桌</option></select></label>
+            <label for="orderStatusFilter">訂單狀態<select id="orderStatusFilter"><option value="">全部狀態</option><option value="received">待處理</option><option value="preparing">製作中</option><option value="ready">可取餐</option><option value="completed">已完成</option><option value="cancelled">已取消</option></select></label>
+            <label for="orderPaymentFilter">付款狀態<select id="orderPaymentFilter"><option value="">全部狀態</option><option value="unpaid">未付款</option><option value="paid">已付款</option><option value="refunded">已退款</option></select></label>
+            <button id="refreshOrders" class="admin-quiet-button" type="button">更新訂單</button>
+          </div>
         </div>
         <div id="ordersList" class="orders-list" aria-live="polite"><p class="admin-empty">正在載入訂單…</p></div>
       </section>

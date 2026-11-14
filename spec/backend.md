@@ -5,6 +5,11 @@
 使用 Python FastAPI 建立點餐 Web API。菜單與訂單資料使用 SQLite 儲存；前端由同一個 FastAPI 服務提供。
 店家管理 API 使用環境變數設定的單一管理帳號，管理者密碼不存入 SQLite。
 
+## 跨源存取（CORS）
+
+- 允許所有來源、所有 HTTP 方法及所有請求標頭。
+- 不允許跨源憑證（`allow_credentials = false`），因此瀏覽器跨源請求不會攜帶管理 session cookie。
+
 ## 檔案位置
 
 - API 程式：`src/main.py`
@@ -391,7 +396,7 @@ erDiagram
 
 ### 訂單管理
 
-- `GET /api/admin/orders`：依建立時間由新到舊列出訂單及明細；可用 `status` 篩選，`limit` 為 1 至 200，預設 100。
+- `GET /api/admin/orders`：依建立時間由新到舊列出訂單及明細；可用 `table_number`（`01` 至 `12`）、`status`（訂單狀態）及 `payment_status`（付款狀態）篩選，多個條件同時提供時以 AND 組合；`limit` 為 1 至 200，預設 100。
 - `PATCH /api/admin/orders/{id}`：可更新 `status`（`received`、`preparing`、`ready`、`completed`、`cancelled`）及/或 `payment_status`（`unpaid`、`paid`、`refunded`）。至少需提供一個欄位。
 - 找不到訂單回傳 HTTP 404；狀態不合法或沒有可更新欄位回傳 HTTP 422。
 - 測試方式：確認未登入管理 API 會被拒絕；登入後新增/編輯/停售測試餐點並確認公開菜單只顯示供應中餐點；查詢訂單並更新狀態/付款狀態；登出後確認 session 失效。測試資料需清理。

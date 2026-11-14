@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="member.css">
   <link rel="stylesheet" href="feedback.css">
   <link rel="stylesheet" href="qr-print.css">
   <script src="app.js" defer></script>
@@ -18,7 +19,7 @@
   <div class="ticker"><span>GOOD FOOD. GOOD MOOD.</span><i></i><span>每天早上 07:00 開始供應</span></div>
   <header class="site-header">
     <a class="wordmark" href="#top" aria-label="Good Morning Club 首頁"><span class="brand-mark" aria-hidden="true">G</span><span><strong>GOOD MORNING</strong><small>BREAKFAST CLUB</small></span></a>
-    <div class="table-control"><label for="tableSelect">用餐桌號</label><select id="tableSelect" aria-describedby="tableHint">
+    <a class="member-link" href="member.html">會員登入／紅利點數</a><div class="table-control"><label for="tableSelect">用餐桌號</label><select id="tableSelect" aria-describedby="tableHint">
       <option value="">請選擇桌號</option><option value="01">01 桌</option><option value="02">02 桌</option><option value="03">03 桌</option><option value="04">04 桌</option><option value="05">05 桌</option><option value="06">06 桌</option><option value="07">07 桌</option><option value="08">08 桌</option><option value="09">09 桌</option><option value="10">10 桌</option><option value="11">11 桌</option><option value="12">12 桌</option>
     </select></div>
   </header>
@@ -37,7 +38,7 @@
   <div id="cartBackdrop" class="cart-backdrop" hidden></div>
   <div id="addToast" class="add-toast" role="status" aria-live="polite" aria-atomic="true"></div>
   <button id="mobileCartButton" class="mobile-cart-button" type="button" disabled><span>查看訂單 <b id="mobileCartCount">0</b></span><strong id="mobileCartTotal">NT$ 0</strong></button>
-  <dialog id="confirmDialog" class="order-dialog" aria-labelledby="confirmTitle"><form method="dialog" class="dialog-dismiss"><button class="icon-button" aria-label="關閉確認視窗">×</button></form><p class="eyebrow">ONE LAST LOOK</p><h2 id="confirmTitle">確認這份美好</h2><p id="confirmTable" class="dialog-table"></p><div id="confirmItems" class="dialog-items"></div><div class="dialog-total"><span>訂單小計</span><strong id="confirmTotal"></strong></div><p class="dialog-payment">付款方式：到店後至櫃檯付款</p><p id="orderError" class="order-error" role="alert" hidden></p><button id="placeOrderButton" class="checkout-button" type="button">送出訂單 <span>→</span></button></dialog>
+  <dialog id="confirmDialog" class="order-dialog" aria-labelledby="confirmTitle"><form method="dialog" class="dialog-dismiss"><button class="icon-button" aria-label="關閉確認視窗">×</button></form><p class="eyebrow">ONE LAST LOOK</p><h2 id="confirmTitle">確認這份美好</h2><p id="confirmTable" class="dialog-table"></p><div id="confirmItems" class="dialog-items"></div><div class="dialog-total"><span>訂單小計</span><strong id="confirmTotal"></strong></div><div id="redemptionPanel" hidden><label for="redeemPoints">折抵點數（每 100 點折 1 元）</label><input id="redeemPoints" type="number" min="0" step="100" value="0" inputmode="numeric" required aria-describedby="redemptionHint redemptionPreview"><p id="redemptionHint" class="dialog-payment"></p><p id="redemptionPreview" class="dialog-payment" aria-live="polite"></p></div><p class="dialog-payment">付款方式：到店後至櫃檯付款</p><p id="orderError" class="order-error" role="alert" hidden></p><button id="placeOrderButton" class="checkout-button" type="button">送出訂單 <span>→</span></button></dialog>
   <dialog id="successDialog" class="order-dialog success-dialog" aria-labelledby="successTitle"><form method="dialog" class="dialog-dismiss"><button class="icon-button" aria-label="關閉完成訊息">×</button></form><div class="success-mark" aria-hidden="true">✓</div><p class="eyebrow">ORDER RECEIVED</p><h2 id="successTitle">訂單已送出！</h2><p id="successTable" class="success-table"></p><div id="successSummary" class="success-summary"></div><p class="dialog-payment">訂單已存入系統，請至櫃檯付款。</p><button id="doneButton" class="checkout-button" type="button">回到菜單</button></dialog>
   <footer class="site-footer"><span>GOOD MORNING CLUB · BREAKFAST MADE BETTER</span><nav aria-label="管理工具"><a href="admin.html">店家管理</a><a href="dashboard.html">營運儀表板</a><a href="qr-print.html">QR Code 列印設定</a></nav></footer>
 </body>

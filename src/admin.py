@@ -14,6 +14,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from pydantic import BaseModel, Field
 
 from src.database import DB_PATH
+from src.loyalty import now_utc, point_transactions, points_summary, timestamp, update_member_order
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 COOKIE_NAME = "gmc_admin_session"
@@ -292,6 +293,54 @@ def get_admin_orders(
     return {"orders": result}
 
 
+@router.get("/members")
+def get_admin_members(
+    response: Response,
+    query: str = Query(default="", max_length=80),
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+    _: str = Depends(require_admin),
+) -> dict[str, object]:
+    response.headers["Cache-Control"] = "no-store"
+    search = query.strip()
+    with closing(sqlite3.connect(DB_PATH)) as connection:
+        connection.row_factory = sqlite3.Row
+        rows = connection.execute(
+            """SELECT m.id, m.phone, m.name, m.status, m.created_at,
+                      COALESCE((SELECT SUM(l.remaining_points) FROM point_lots l
+                                WHERE l.member_id = m.id AND l.expires_at > ?), 0) AS available_points
+               FROM members m
+               WHERE instr(m.phone, ?) > 0 OR instr(COALESCE(m.name, ''), ?) > 0
+               ORDER BY m.created_at DESC, m.id DESC LIMIT ? OFFSET ?""",
+            (timestamp(now_utc()), search, search, limit + 1, offset),
+        ).fetchall()
+    return {"members": [dict(row) for row in rows[:limit]], "has_more": len(rows) > limit}
+
+
+@router.get("/members/{member_id}/transactions")
+def get_admin_member_transactions(
+    member_id: str,
+    response: Response,
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+    _: str = Depends(require_admin),
+) -> dict[str, object]:
+    response.headers["Cache-Control"] = "no-store"
+    with closing(sqlite3.connect(DB_PATH)) as connection:
+        connection.row_factory = sqlite3.Row
+        connection.execute("PRAGMA foreign_keys = ON")
+        connection.execute("BEGIN IMMEDIATE")
+        member = connection.execute(
+            "SELECT id, phone, name, status, created_at FROM members WHERE id = ?", (member_id,)
+        ).fetchone()
+        if member is None:
+            raise HTTPException(status_code=404, detail="找不到此會員。")
+        summary = points_summary(connection, member_id, now_utc())
+        transactions, has_more = point_transactions(connection, member_id, limit, offset)
+        connection.commit()
+    return {"member": {**dict(member), **summary}, "transactions": transactions, "has_more": has_more}
+
+
 @router.patch("/orders/{order_id}")
 def update_order(
     order_id: str,
@@ -305,7 +354,17 @@ def update_order(
     assignments = ", ".join(f"{field} = ?" for field in updates)
     values = [*updates.values(), order_id]
     with closing(sqlite3.connect(DB_PATH)) as connection:
+        connection.row_factory = sqlite3.Row
+        connection.execute("PRAGMA foreign_keys = ON")
         with connection:
+            connection.execute("BEGIN IMMEDIATE")
+            order = connection.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone()
+            if order is None:
+                raise HTTPException(status_code=404, detail="找不到此訂單。")
+            update_member_order(
+                connection, order, updates.get("status", order["status"]),
+                updates.get("payment_status", order["payment_status"]), now_utc(),
+            )
             cursor = connection.execute(
                 f"UPDATE orders SET {assignments} WHERE id = ?", values
             )

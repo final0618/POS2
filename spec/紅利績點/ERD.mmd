@@ -1,0 +1,138 @@
+erDiagram
+    MENU_ITEMS ||--o{ ORDER_ITEMS : contains
+    ORDERS ||--|{ ORDER_ITEMS : includes
+    MENU_ITEMS ||--o{ COMPETITOR_PRICES : compares
+    COMPETITORS ||--o{ COMPETITOR_PRICES : supplies
+    MEMBERS o|--o{ ORDERS : places
+    MEMBERS ||--o{ MEMBER_SESSIONS : authenticates
+    MEMBERS ||--o{ POINT_TRANSACTIONS : owns
+    MEMBERS ||--o{ POINT_LOTS : owns
+    ORDERS o|--o{ POINT_TRANSACTIONS : causes
+    LOYALTY_RULES o|--o{ POINT_TRANSACTIONS : applies
+    POINT_TRANSACTIONS o|--o{ POINT_TRANSACTIONS : reverses
+    POINT_TRANSACTIONS ||--o| POINT_LOTS : creates
+    POINT_TRANSACTIONS ||--o{ POINT_REDEMPTION_ALLOCATIONS : allocates
+    POINT_LOTS ||--o{ POINT_REDEMPTION_ALLOCATIONS : supplies
+
+    MENU_ITEMS {
+        TEXT id PK
+        TEXT name
+        TEXT category
+        TEXT description
+        INTEGER price
+        TEXT badge
+        TEXT image_url
+        TEXT alt_text
+        INTEGER is_available
+    }
+    ORDERS {
+        TEXT id PK
+        TEXT table_number
+        TEXT status
+        TEXT payment_status
+        INTEGER total_amount
+        TEXT created_at
+        TEXT member_id FK
+        INTEGER points_redeemed
+        INTEGER points_discount_amount
+        INTEGER payable_amount
+    }
+    ORDER_ITEMS {
+        TEXT order_id PK, FK
+        TEXT menu_item_id PK, FK
+        TEXT item_name
+        INTEGER unit_price
+        INTEGER quantity
+        INTEGER subtotal
+    }
+    INPUTS {
+        INTEGER id PK
+        TEXT input_text
+        TEXT created_at
+    }
+    COMPETITORS {
+        TEXT id PK
+        TEXT name
+        TEXT category
+        TEXT address
+        REAL latitude
+        REAL longitude
+        REAL rating
+        INTEGER review_count
+        TEXT business_hours
+        TEXT phone
+        TEXT website_url
+        TEXT source_url
+        TEXT source_checked_at
+        TEXT notes
+        INTEGER is_active
+    }
+    COMPETITOR_PRICES {
+        TEXT competitor_id PK, FK
+        TEXT menu_item_id PK, FK
+        INTEGER price
+        TEXT product_name
+        TEXT price_source_url
+        TEXT price_checked_at
+        TEXT price_notes
+    }
+    MEMBERS {
+        TEXT id PK
+        TEXT phone UK
+        TEXT password_hash
+        TEXT name
+        TEXT status
+        TEXT created_at
+        TEXT updated_at
+    }
+    MEMBER_SESSIONS {
+        TEXT id PK
+        TEXT member_id FK
+        TEXT token_hash UK
+        TEXT expires_at
+        TEXT revoked_at
+        TEXT created_at
+    }
+    MEMBER_LOGIN_ATTEMPTS {
+        TEXT key
+        INTEGER attempted_at
+    }
+    SCHEMA_MIGRATIONS {
+        INTEGER version PK
+    }
+    LOYALTY_RULES {
+        TEXT id PK
+        INTEGER earn_amount
+        INTEGER earn_points
+        INTEGER redeem_points
+        INTEGER redeem_amount
+        INTEGER expiry_months
+        TEXT effective_at UK
+    }
+    POINT_TRANSACTIONS {
+        TEXT id PK
+        TEXT member_id FK
+        TEXT order_id FK
+        TEXT rule_id FK
+        TEXT kind
+        INTEGER points_delta
+        TEXT related_transaction_id FK
+        TEXT idempotency_key UK
+        TEXT note
+        TEXT created_at
+    }
+    POINT_LOTS {
+        TEXT id PK
+        TEXT member_id FK
+        TEXT source_transaction_id FK
+        INTEGER initial_points
+        INTEGER remaining_points
+        TEXT expires_at
+        TEXT created_at
+    }
+    POINT_REDEMPTION_ALLOCATIONS {
+        TEXT transaction_id PK, FK
+        TEXT lot_id PK, FK
+        TEXT member_id FK
+        INTEGER points
+    }

@@ -48,6 +48,7 @@
       <nav class="admin-tabs" role="tablist" aria-label="管理項目">
         <button id="overviewTab" class="admin-tab" type="button" role="tab" aria-selected="false" aria-controls="overviewPanel" data-panel="overviewPanel">營運概覽</button>
         <button id="ordersTab" class="admin-tab" type="button" role="tab" aria-selected="true" aria-controls="ordersPanel" data-panel="ordersPanel">訂單處理</button>
+        <button id="membersTab" class="admin-tab" type="button" role="tab" aria-selected="false" aria-controls="membersPanel" data-panel="membersPanel">會員管理</button>
         <button id="menuTab" class="admin-tab" type="button" role="tab" aria-selected="false" aria-controls="menuPanel" data-panel="menuPanel">菜單管理</button>
         <button id="competitorsTab" class="admin-tab" type="button" role="tab" aria-selected="false" aria-controls="competitorsPanel" data-panel="competitorsPanel">競業資料</button>
       </nav>
@@ -95,6 +96,25 @@
           </div>
         </div>
         <div id="ordersList" class="orders-list" aria-live="polite"><p class="admin-empty">正在載入訂單…</p></div>
+      </section>
+
+      <section id="membersPanel" class="admin-panel" role="tabpanel" aria-labelledby="membersTab" hidden>
+        <div class="admin-section-heading">
+          <div><p class="eyebrow">MEMBER LOYALTY</p><h2>會員管理</h2><p class="admin-muted">顯示目前可用點數，不包含已到期點數。</p></div>
+          <form id="memberSearchForm" class="admin-filters member-search-form">
+            <label for="memberSearch">搜尋會員</label>
+            <input id="memberSearch" type="search" maxlength="80" placeholder="手機號碼或姓名">
+            <button class="admin-quiet-button" type="submit">搜尋</button>
+          </form>
+        </div>
+        <div class="menu-table-wrap"><table class="menu-table"><thead><tr><th>手機號碼</th><th>姓名</th><th>狀態</th><th>可用點數</th><th>註冊時間</th><th><span class="visually-hidden">操作</span></th></tr></thead><tbody id="memberRows" aria-live="polite"><tr><td colspan="6" class="admin-empty">尚未載入會員。</td></tr></tbody></table></div>
+        <button id="loadMoreMembers" class="admin-quiet-button member-more" type="button" hidden>載入更多會員</button>
+        <section id="memberDetail" class="member-detail" aria-labelledby="memberDetailTitle" hidden>
+          <h3 id="memberDetailTitle">會員點數紀錄</h3>
+          <p id="memberDetailSummary" class="admin-muted"></p>
+          <ul id="memberTransactions" class="member-transactions" aria-live="polite"></ul>
+          <button id="loadMoreMemberTransactions" class="admin-quiet-button" type="button" hidden>載入更多紀錄</button>
+        </section>
       </section>
 
       <section id="menuPanel" class="admin-panel" role="tabpanel" aria-labelledby="menuTab" hidden>

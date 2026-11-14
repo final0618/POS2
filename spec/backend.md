@@ -22,6 +22,11 @@
 
 ## 店家管理與資料庫調整
 
+- 會員可使用台灣手機及密碼註冊、登入，透過 `/api/members/session`、`/api/members/me/points` 及 `/api/members/me/points/transactions` 查詢本人資料；登出為 `POST /api/members/logout`。註冊與登入分別為 `POST /api/members/register`、`POST /api/members/login`，JSON 含 `phone`、`password`。
+- `POST /api/orders` 繼續支援訪客；會員由 session 綁定，可選填整數 `points_redeemed`。回應包含 `points_redeemed`、`points_discount_amount`、`payable_amount`；價格及點數由後端驗證。
+- 累點與退款規則、登入限制及 SQLite 表設計見 [會員紅利計畫](./紅利績點/計畫書.md)及[會員紅利 ERD](./紅利績點/ERD.mmd)。SQL 草案不應直接用於正式環境，應由程式遷移。
+- 管理員登入後可使用 `GET /api/admin/members?query=&limit=20&offset=0` 查詢會員（手機或姓名），及 `GET /api/admin/members/{id}/transactions?limit=20&offset=0` 查詢單一會員及點數歷史。兩者回傳 `has_more` 並禁止快取；不回傳密碼雜湊。餘額不包含過期點數；查詢歷史時沿用會員查詢的到期入帳流程。
+
 - 管理頁：`web/admin.html`；從點餐頁或營運儀表板頁尾進入。
 - 管理頁的「營運概覽」頁籤與獨立 `web/dashboard.html` 共用 `GET /api/dashboard`；無需額外統計 API 或資料表。
 - 菜單管理直接使用 `menu_items` 現有欄位新增、編輯與上下架；停售只更新 `is_available`，不刪除餐點，以保留訂單明細外鍵及歷史價格/名稱快照。

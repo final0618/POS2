@@ -4,6 +4,8 @@ import sqlite3
 from contextlib import closing
 from pathlib import Path
 
+from src.loyalty_schema import migrate_loyalty
+
 DB_PATH = Path(__file__).resolve().parent.parent / "data" / "pos.db"
 
 MENU_ITEMS = [
@@ -288,6 +290,7 @@ def initialize_database(db_path: str | Path = DB_PATH) -> Path:
     with closing(sqlite3.connect(database_path)) as connection, connection:
         connection.execute("PRAGMA foreign_keys = ON")
         connection.executescript(SCHEMA)
+        migrate_loyalty(connection)
         price_columns = {row[1] for row in connection.execute("PRAGMA table_info(competitor_prices)")}
         for column in ("product_name", "price_source_url", "price_checked_at", "price_notes"):
             if column not in price_columns:

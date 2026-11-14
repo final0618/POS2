@@ -5,13 +5,15 @@ from pathlib import Path
 from uuid import uuid4
 from zoneinfo import ZoneInfo
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.admin import router as admin_router
 from src.database import DB_PATH, initialize_database
+from src.loyalty import now_utc, redeem_points, timestamp
+from src.members import check_origin, member_from_session, router as members_router
 
 WEB_DIR = Path(__file__).resolve().parent.parent / "web"
 TAIPEI = ZoneInfo("Asia/Taipei")
@@ -23,8 +25,10 @@ class OrderItemRequest(BaseModel):
 
 
 class OrderRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     table_number: str = Field(pattern=r"^(0[1-9]|1[0-2])$")
     items: list[OrderItemRequest] = Field(min_length=1, max_length=50)
+    points_redeemed: int = Field(default=0, ge=0, le=1000000000)
 
 
 @asynccontextmanager
@@ -42,6 +46,7 @@ app.add_middleware(
     allow_credentials=False,
 )
 app.include_router(admin_router)
+app.include_router(members_router)
 
 
 @app.get("/api/menu")
@@ -70,7 +75,7 @@ def get_menu() -> dict[str, list[dict[str, object]]]:
 
 
 @app.post("/api/orders", status_code=201)
-def create_order(request: OrderRequest) -> dict[str, dict[str, object]]:
+def create_order(request: OrderRequest, http_request: Request) -> dict[str, dict[str, object]]:
     quantities: dict[str, int] = {}
     for item in request.items:
         quantities[item.menu_item_id] = quantities.get(item.menu_item_id, 0) + item.quantity
@@ -84,6 +89,12 @@ def create_order(request: OrderRequest) -> dict[str, dict[str, object]]:
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys = ON")
         with connection:
+            connection.execute("BEGIN IMMEDIATE")
+            member = member_from_session(connection, http_request)
+            if member is not None:
+                check_origin(http_request)
+            elif request.points_redeemed:
+                raise HTTPException(status_code=401, detail="請先登入會員才能折抵點數。")
             menu_rows = connection.execute(
                 f"""
                 SELECT id, name, price
@@ -118,9 +129,21 @@ def create_order(request: OrderRequest) -> dict[str, dict[str, object]]:
                 )
 
             connection.execute(
-                "INSERT INTO orders (id, table_number, total_amount) VALUES (?, ?, ?)",
-                (order_id, request.table_number, total_amount),
+                """INSERT INTO orders (id, table_number, total_amount, member_id, payable_amount)
+                   VALUES (?, ?, ?, ?, ?)""",
+                (order_id, request.table_number, total_amount, member["id"] if member else None, total_amount),
             )
+            discount = 0
+            if member is not None and request.points_redeemed:
+                discount, _ = redeem_points(
+                    connection, member["id"], order_id, request.points_redeemed,
+                    total_amount, timestamp(now_utc()),
+                )
+                connection.execute(
+                    """UPDATE orders SET points_redeemed = ?, points_discount_amount = ?,
+                       payable_amount = ? WHERE id = ?""",
+                    (request.points_redeemed, discount, total_amount - discount, order_id),
+                )
             connection.executemany(
                 """
                 INSERT INTO order_items (
@@ -150,6 +173,9 @@ def create_order(request: OrderRequest) -> dict[str, dict[str, object]]:
             "status": "received",
             "payment_status": "unpaid",
             "total_amount": total_amount,
+            "points_redeemed": request.points_redeemed,
+            "points_discount_amount": discount,
+            "payable_amount": total_amount - discount,
             "created_at": created_at,
             "items": order_items,
         }

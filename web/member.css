@@ -1,0 +1,11 @@
+.member-page{max-width:760px;margin:2rem auto;padding:0 1.25rem 4rem}
+.member-page h1,.member-page h2{margin:1.5rem 0 .75rem}
+.member-form{display:grid;gap:.8rem;max-width:420px}
+.member-form label{display:grid;gap:.35rem;font-weight:700}
+.member-form input,#redeemPoints{padding:.65rem;border:1px solid #999;border-radius:4px;font:inherit}
+.member-page button{padding:.65rem 1rem;cursor:pointer;font:inherit}
+.member-balance{padding:1rem;background:#fff2dc;border-radius:8px}
+.member-balance strong{font-size:2rem;color:#c72c31}
+.member-actions{display:flex;gap:1rem;align-items:center;margin-top:1.5rem}
+.member-link{font-weight:700}
+#transactionsList .transaction-redeem{color:#c72c31}

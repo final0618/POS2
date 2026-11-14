@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>會員與紅利點數 | Good Morning Club</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="member.css">
+  <script src="member.js" defer></script>
+</head>
+<body>
+  <header class="site-header"><a class="wordmark" href="index.html"><span class="brand-mark">G</span><span><strong>GOOD MORNING</strong><small>BREAKFAST CLUB</small></span></a><a href="index.html">返回點餐</a></header>
+  <main class="member-page">
+    <h1>會員與紅利點數</h1>
+    <p id="memberMessage" role="status" aria-live="polite"></p>
+    <section id="authSection">
+      <h2>登入會員</h2>
+      <form id="loginForm" class="member-form">
+        <label>手機號碼<input name="phone" type="tel" autocomplete="tel" required maxlength="30"></label>
+        <label>密碼<input name="password" type="password" autocomplete="current-password" required minlength="10" maxlength="128"></label>
+        <button type="submit">登入</button>
+      </form>
+      <h2>建立會員</h2>
+      <p>使用台灣手機號碼註冊；密碼至少 10 字元。本階段不提供線上密碼重設。</p>
+      <form id="registerForm" class="member-form">
+        <label>手機號碼<input name="phone" type="tel" autocomplete="tel" required maxlength="30"></label>
+        <label>密碼<input name="password" type="password" autocomplete="new-password" required minlength="10" maxlength="128"></label>
+        <button type="submit">註冊</button>
+      </form>
+      <button id="clearSession" type="button" hidden>清除失效登入，使用訪客身分</button>
+      <p><a href="index.html">不登入，直接點餐</a></p>
+    </section>
+    <section id="pointsSection" hidden>
+      <p id="memberIdentity"></p>
+      <p class="member-balance">可用點數 <strong id="pointsBalance">0</strong> 點</p>
+      <p>完成且付款的訂單，每消費 10 元得 1 點；100 點可折 1 元。</p>
+      <h2>未來 30 天到期</h2>
+      <ul id="expiringList"></ul>
+      <h2>點數異動紀錄</h2>
+      <ul id="transactionsList"></ul>
+      <button id="loadMore" type="button" hidden>載入更多</button>
+      <div class="member-actions"><a href="index.html">前往點餐</a><button id="logoutButton" type="button">登出</button></div>
+    </section>
+  </main>
+</body>
+</html>

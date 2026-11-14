@@ -4,7 +4,8 @@
 
 - 檔案：`data/pos.db`
 - 引擎：SQLite
-- 實際資料表：`menu_items`、`orders`、`order_items`、`inputs`、`competitors`、`competitor_prices`
+- 既有資料表：`menu_items`、`orders`、`order_items`、`inputs`、`competitors`、`competitor_prices`。
+- 會員與紅利資料表及完整新 ERD：見 [會員紅利 ERD](./紅利績點/ERD.mmd)；實際遷移與欄位以 `src/loyalty_schema.py` 為準。
 - 目前 ER 圖：![Good Morning Club SQLite ER diagram](er.jpg)
 - 金額以新台幣整數儲存；資料庫時間為 UTC ISO 8601 字串。Dashboard 統計時轉換為 `Asia/Taipei`。
 
@@ -88,6 +89,7 @@ erDiagram
 - `inputs` 是獨立資料表；目前 `/input` API 尚未實作。
 - `competitor_prices` 以複合主鍵 `(competitor_id, menu_item_id)` 連結店家與菜單，並記錄價格來源；缺少資料列代表查無價格。
 - 管理者帳號不存於資料庫，使用環境變數及簽章 session cookie。
+- `orders.member_id` 可為 NULL 以保留訪客下單；會員訂單另記點數折抵及 `payable_amount`。會員 session、點數帳本、點數批次及折抵分配均保存在 SQLite。
 
 ## 初始競品資料
 
